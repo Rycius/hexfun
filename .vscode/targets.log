@@ -1,0 +1,670 @@
+make.exe all --print-data-base --no-builtin-variables --no-builtin-rules --question
+mingw32-make game
+ 
+# make[1]: Entering directory 'c:/Users/Rycius/Documents/Projects/hexfun'
+# GNU Make 4.2
+# Built for i686-w64-mingw32
+# Copyright (C) 1988-2016 Free Software Foundation, Inc.
+# License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>
+# This is free software: you are free to change and redistribute it.
+# There is NO WARRANTY, to the extent permitted by law.
+
+# Make data base, printed on Sun Aug 21 22:08:44 2022
+
+# Variables
+
+# 'override' directive
+GNUMAKEFLAGS := 
+# automatic
+<D = $(patsubst %/,%,$(patsubst %\,%,$(dir $<)))
+# automatic
+?F = $(notdir $?)
+# default
+.SHELLFLAGS := -c
+# makefile (from 'Makefile', line 113)
+SRC = $(call rwildcard, *.c, *.h, *cpp)
+# makefile
+MAKEFLAGS = pqrRw
+# automatic
+?D = $(patsubst %/,%,$(patsubst %\,%,$(dir $?)))
+# makefile (from 'Makefile', line 32)
+COMPILER_PATH = C:/raylib/w64devkit/bin
+# makefile (from 'Makefile', line 28)
+RAYLIB_VERSION = 4.0.0
+# automatic
+@D = $(patsubst %/,%,$(patsubst %\,%,$(dir $@)))
+# environment
+HOMEDRIVE = C:
+# automatic
+@F = $(notdir $@)
+# makefile (from 'Makefile', line 100)
+LDLIBS = -lraylib -lopengl32 -lgdi32 -lwinmm
+# automatic
+^D = $(patsubst %/,%,$(patsubst %\,%,$(dir $^)))
+# makefile
+CURDIR := c:/Users/Rycius/Documents/Projects/hexfun
+# default
+SHELL := C:/raylib/w64devkit/bin/sh.exe
+# environment
+WINDIR = C:\WINDOWS
+# environment
+VSCODE_NLS_CONFIG = {"locale":"en-us","availableLanguages":{},"_languagePackSupport":true}
+# makefile (from 'Makefile', line 82)
+CFLAGS = -Wall -std=c++11 -D_DEFAULT_SOURCE -Wno-missing-braces -g -O0 -Wno-narrowing -Wno-sign-compare -Wno-enum-compare $(RAYLIB_PATH)/src/raylib.rc.data
+# environment
+ONEDRIVE = C:\Users\Rycius\OneDrive
+# environment
+PATHEXT = .COM;.EXE;.BAT;.CMD;.VBS;.VBE;.JS;.JSE;.WSF;.WSH;.MSC
+# makefile (from 'Makefile', line 1)
+MAKEFILE_LIST :=  Makefile
+# environment
+TMP = C:\Users\Rycius\AppData\Local\Temp
+# makefile (from 'Makefile', line 110)
+OBJ_DIR = obj
+# makefile (from 'Makefile', line 42)
+BUILD_MODE = DEBUG
+# environment
+PROGRAMW6432 = C:\Program Files
+# makefile (from 'Makefile', line 115)
+OBJS = main.cpp
+# environment
+PROGRAMDATA = C:\ProgramData
+# environment
+VSCODE_CWD = C:\Users\Rycius\Documents\Projects\hexfun
+# default
+MAKE_HOST := i686-w64-mingw32
+# makefile (from 'Makefile', line 45)
+PATH := C:/raylib/w64devkit/bin:C:/raylib/w64devkit/bin;C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0\;C:\Program Files\Intel\WiFi\bin\;C:\Program Files\Common Files\Intel\WirelessCommon\;C:\WINDOWS\system32;C:\WINDOWS;C:\WINDOWS\System32\Wbem;C:\WINDOWS\System32\WindowsPowerShell\v1.0\;C:\WINDOWS\System32\OpenSSH\;C:\Program Files\dotnet\;C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\;C:\Users\Rycius\Downloads\Odin-dev-2022-04;C:\Program Files\Git\cmd;C:\Program Files (x86)\NVIDIA Corporation\PhysX\Common;C:\Users\Rycius\AppData\Local\Programs\Python\Python37\Scripts\;C:\Users\Rycius\AppData\Local\Programs\Python\Python37\;C:\Users\Rycius\AppData\Local\Programs\Python\Launcher\;C:\Users\Rycius\AppData\Local\Microsoft\WindowsApps;C:\Program Files\Intel\WiFi\bin\;C:\Program Files\Common Files\Intel\WirelessCommon\;C:\Users\Rycius\.dotnet\tools;C:\Users\Rycius\AppData\Local\Programs\Microsoft VS Code\bin;C:\raylib\w64devkit\bin;
+# environment
+COMMONPROGRAMW6432 = C:\Program Files\Common Files
+# makefile (from 'Makefile', line 29)
+RAYLIB_PATH = C:\raylib\raylib
+# environment
+PROCESSOR_ARCHITECTURE = x86
+# environment
+USERPROFILE = C:\Users\Rycius
+# environment
+ALLUSERSPROFILE = C:\ProgramData
+# environment
+NUMBER_OF_PROCESSORS = 8
+# environment
+ELECTRON_RUN_AS_NODE = 1
+# makefile (from 'Makefile', line 89)
+INCLUDE_PATHS = -I. -I$(RAYLIB_PATH)/src -I$(RAYLIB_PATH)/src/external -Isrc -Iinclude -Iinclude/raylib 
+# makefile (from 'Makefile', line 92)
+LDFLAGS = -L. -L$(RAYLIB_RELEASE_PATH) -L$(RAYLIB_PATH)/src
+# default
+.FEATURES := target-specific order-only second-expansion else-if shortest-stem undefine oneshell archives jobserver output-sync
+# automatic
+%F = $(notdir $%)
+# environment
+CHROME_CRASHPAD_PIPE_NAME = \\.\pipe\crashpad_17696_KZOGZLWLPVPKYBNL
+# makefile (from 'Makefile', line 44)
+PLATFORM_OS = WINDOWS
+# environment
+COMPUTERNAME = DESKTOP-I2VGV5B
+# environment
+PROGRAMFILES = C:\Program Files (x86)
+# default
+.LOADED := 
+# environment
+DRIVERDATA = C:\Windows\System32\Drivers\DriverData
+# environment
+ORIGINAL_XDG_CURRENT_DESKTOP = undefined
+# environment
+USERNAME = Rycius
+# environment
+PUBLIC = C:\Users\Public
+# environment
+VSCODE_AMD_ENTRYPOINT = vs/workbench/api/node/extensionHostProcess
+# environment
+VSCODE_CODE_CACHE_PATH = C:\Users\Rycius\AppData\Roaming\Code\CachedData\e4503b30fc78200f846c62cf8091b76ff5547662
+# environment
+APPLICATION_INSIGHTS_NO_DIAGNOSTIC_CHANNEL = true
+# environment
+COMMONPROGRAMFILES = C:\Program Files (x86)\Common Files
+# environment
+LOGONSERVER = \\DESKTOP-I2VGV5B
+# makefile (from 'Makefile', line 117)
+MAKEFILE_PARAMS = $(PROJECT_NAME)
+# environment
+ONEDRIVECONSUMER = C:\Users\Rycius\OneDrive
+# environment
+VSCODE_HANDLES_UNCAUGHT_ERRORS = true
+# environment
+USERDOMAIN = DESKTOP-I2VGV5B
+# environment
+MAKELEVEL := 1
+# makefile (from 'Makefile', line 58)
+MAKE = mingw32-make
+# default
+MAKECMDGOALS := game
+# makefile (from 'Makefile', line 54)
+CC = g++
+# default
+MAKE_VERSION := 4.2
+# makefile
+.DEFAULT_GOAL := all
+# environment
+PROGRAMFILES(X86) = C:\Program Files (x86)
+# automatic
+%D = $(patsubst %/,%,$(patsubst %\,%,$(dir $%)))
+# environment
+LOCALAPPDATA = C:\Users\Rycius\AppData\Local
+# environment
+PSMODULEPATH = C:\Program Files\WindowsPowerShell\Modules;C:\WINDOWS\system32\WindowsPowerShell\v1.0\Modules
+# makefile (from 'Makefile', line 106)
+rwildcard = $(foreach d,$(wildcard $1*),$(call rwildcard,$d/,$2) $(filter $(subst *,%,$2),$d))
+# default
+MAKE_COMMAND := make
+# environment
+PROCESSOR_ARCHITEW6432 = AMD64
+# default
+.VARIABLES := 
+# automatic
+*F = $(notdir $*)
+# environment
+PROCESSOR_IDENTIFIER = Intel64 Family 6 Model 94 Stepping 3, GenuineIntel
+# environment
+OS = Windows_NT
+# environment
+VSCODE_IPC_HOOK = \\.\pipe\64e1c3bde2055cef164067eb0ecd517b-1.70.2-main-sock
+# environment
+HOMEPATH = \Users\Rycius
+# environment
+COMMONPROGRAMFILES(X86) = C:\Program Files (x86)\Common Files
+# environment
+PROMPT = $P$G
+# environment
+MFLAGS = -pqrRw
+# automatic
+*D = $(patsubst %/,%,$(patsubst %\,%,$(dir $*)))
+# environment
+SYSTEMROOT = C:\WINDOWS
+# automatic
++D = $(patsubst %/,%,$(patsubst %\,%,$(dir $+)))
+# automatic
++F = $(notdir $+)
+# environment
+APPDATA = C:\Users\Rycius\AppData\Roaming
+# environment
+__COMPAT_LAYER = DetectorsAppHealth
+# environment
+TEMP = C:\Users\Rycius\AppData\Local\Temp
+# environment
+COMSPEC = C:\WINDOWS\system32\cmd.exe
+# makefile (from 'Makefile', line 36)
+PLATFORM = PLATFORM_DESKTOP
+# default
+MAKEFILES := 
+# makefile (from 'Makefile', line 109)
+SRC_DIR = src
+# automatic
+<F = $(notdir $<)
+# makefile (from 'Makefile', line 50)
+RAYLIB_RELEASE_PATH = $(RAYLIB_PATH)/src
+# makefile (from 'Makefile', line 27)
+PROJECT_NAME = game
+# environment
+LC_ALL = C
+# automatic
+^F = $(notdir $^)
+# default
+SUFFIXES := 
+# environment
+SYSTEMDRIVE = C:
+# environment
+SESSIONNAME = Console
+# environment
+PROCESSOR_REVISION = 5e03
+# makefile (from 'Makefile', line 39)
+RAYLIB_LIBTYPE = STATIC
+# default
+.RECIPEPREFIX := 
+# environment
+LANG = C
+# environment
+PROCESSOR_LEVEL = 6
+# environment
+VSCODE_PID = 17696
+# environment
+USERDOMAIN_ROAMINGPROFILE = DESKTOP-I2VGV5B
+# variable set hash-table stats:
+# Load=108/1024=11%, Rehash=0, Collisions=20/156=13%
+
+# Pattern-specific Variable Values
+
+# No pattern-specific variable values.
+
+# Directories
+
+# . (key c:/Users/Rycius/Documents/Projects/hexfun, mtime 1661082969ll): 10 files, no impossibilities.
+# src (key c:/Users/Rycius/Documents/Projects/hexfun/src, mtime 1661086851ll): No files, no impossibilities so far.
+
+# 10 files, no impossibilities in 2 directories.
+
+# Implicit Rules
+
+obj/%.o: src/%.c
+#  recipe to execute (from 'Makefile', line 133):
+	$(CC) -c $< -o build/$@ $(CFLAGS) $(INCLUDE_PATHS) -D$(PLATFORM)
+
+# 1 implicit rules, 0 (0.0%) terminal.
+
+# Files
+
+all:
+#  Phony target (prerequisite of .PHONY).
+#  Implicit rule search has not been done.
+#  File does not exist.
+#  File has not been updated.
+#  recipe to execute (from 'Makefile', line 123):
+	$(MAKE) $(MAKEFILE_PARAMS)
+
+.PHONY: all clean
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+
+# Not a target:
+Makefile:
+#  Implicit rule search has been done.
+#  Last modified 2022-08-19 14:30:38
+#  File has been updated.
+#  Successfully updated.
+
+# Not a target:
+main.cpp:
+#  Implicit rule search has been done.
+#  File does not exist.
+#  File has not been updated.
+
+# Not a target:
+.DEFAULT:
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+
+clean:
+#  Phony target (prerequisite of .PHONY).
+#  Implicit rule search has not been done.
+#  File does not exist.
+#  File has not been updated.
+#  recipe to execute (from 'Makefile', line 139):
+		del *.o *.exe /s
+	@echo Cleaning done
+
+game: main.cpp
+#  Command line target.
+#  Implicit rule search has not been done.
+#  File does not exist.
+#  File has not been updated.
+#  recipe to execute (from 'Makefile', line 127):
+	$(CC) -o build/$(PROJECT_NAME)$(EXT) $(OBJS) $(CFLAGS) $(INCLUDE_PATHS) $(LDFLAGS) $(LDLIBS) -D$(PLATFORM)
+
+# files hash-table stats:
+# Load=8/1024=1%, Rehash=0, Collisions=0/24=0%
+# VPATH Search Paths
+
+# No 'vpath' search paths.
+
+# No general ('VPATH' variable) search path.
+
+# strcache buffers: 1 (0) / strings = 19 / storage = 153 B / avg = 8 B
+# current buf: size = 8174 B / used = 153 B / count = 19 / avg = 8 B
+
+# strcache performance: lookups = 30 / hit rate = 36%
+# hash-table stats:
+# Load=19/8192=0%, Rehash=0, Collisions=1/30=3%
+# Finished Make data base on Sun Aug 21 22:08:44 2022
+
+# make[1]: Leaving directory 'c:/Users/Rycius/Documents/Projects/hexfun'
+ 
+make[1]: *** No rule to make target 'main.cpp', needed by 'game'.  Stop.
+
+make.exe: *** [Makefile:123: all] Error 2
+
+# GNU Make 4.2
+# Built for i686-w64-mingw32
+# Copyright (C) 1988-2016 Free Software Foundation, Inc.
+# License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>
+# This is free software: you are free to change and redistribute it.
+# There is NO WARRANTY, to the extent permitted by law.
+
+# Make data base, printed on Sun Aug 21 22:08:44 2022
+
+# Variables
+
+# 'override' directive
+GNUMAKEFLAGS := 
+# automatic
+<D = $(patsubst %/,%,$(patsubst %\,%,$(dir $<)))
+# automatic
+?F = $(notdir $?)
+# default
+.SHELLFLAGS := -c
+# makefile (from 'Makefile', line 113)
+SRC = $(call rwildcard, *.c, *.h, *cpp)
+# makefile
+MAKEFLAGS = pqrR
+# automatic
+?D = $(patsubst %/,%,$(patsubst %\,%,$(dir $?)))
+# makefile (from 'Makefile', line 32)
+COMPILER_PATH = C:/raylib/w64devkit/bin
+# makefile (from 'Makefile', line 28)
+RAYLIB_VERSION = 4.0.0
+# automatic
+@D = $(patsubst %/,%,$(patsubst %\,%,$(dir $@)))
+# environment
+HOMEDRIVE = C:
+# automatic
+@F = $(notdir $@)
+# makefile (from 'Makefile', line 100)
+LDLIBS = -lraylib -lopengl32 -lgdi32 -lwinmm
+# automatic
+^D = $(patsubst %/,%,$(patsubst %\,%,$(dir $^)))
+# makefile
+CURDIR := c:/Users/Rycius/Documents/Projects/hexfun
+# default
+SHELL := C:/raylib/w64devkit/bin/sh.exe
+# environment
+WINDIR = C:\WINDOWS
+# environment
+VSCODE_NLS_CONFIG = {"locale":"en-us","availableLanguages":{},"_languagePackSupport":true}
+# makefile (from 'Makefile', line 82)
+CFLAGS = -Wall -std=c++11 -D_DEFAULT_SOURCE -Wno-missing-braces -g -O0 -Wno-narrowing -Wno-sign-compare -Wno-enum-compare $(RAYLIB_PATH)/src/raylib.rc.data
+# environment
+ONEDRIVE = C:\Users\Rycius\OneDrive
+# environment
+PATHEXT = .COM;.EXE;.BAT;.CMD;.VBS;.VBE;.JS;.JSE;.WSF;.WSH;.MSC
+# makefile (from 'Makefile', line 1)
+MAKEFILE_LIST :=  Makefile
+# environment
+TMP = C:\Users\Rycius\AppData\Local\Temp
+# makefile (from 'Makefile', line 110)
+OBJ_DIR = obj
+# makefile (from 'Makefile', line 42)
+BUILD_MODE = DEBUG
+# environment
+PROGRAMW6432 = C:\Program Files
+# makefile (from 'Makefile', line 115)
+OBJS = main.cpp
+# environment
+PROGRAMDATA = C:\ProgramData
+# environment
+VSCODE_CWD = C:\Users\Rycius\Documents\Projects\hexfun
+# default
+MAKE_HOST := i686-w64-mingw32
+# makefile (from 'Makefile', line 45)
+PATH := C:/raylib/w64devkit/bin;C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0\;C:\Program Files\Intel\WiFi\bin\;C:\Program Files\Common Files\Intel\WirelessCommon\;C:\WINDOWS\system32;C:\WINDOWS;C:\WINDOWS\System32\Wbem;C:\WINDOWS\System32\WindowsPowerShell\v1.0\;C:\WINDOWS\System32\OpenSSH\;C:\Program Files\dotnet\;C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\;C:\Users\Rycius\Downloads\Odin-dev-2022-04;C:\Program Files\Git\cmd;C:\Program Files (x86)\NVIDIA Corporation\PhysX\Common;C:\Users\Rycius\AppData\Local\Programs\Python\Python37\Scripts\;C:\Users\Rycius\AppData\Local\Programs\Python\Python37\;C:\Users\Rycius\AppData\Local\Programs\Python\Launcher\;C:\Users\Rycius\AppData\Local\Microsoft\WindowsApps;C:\Program Files\Intel\WiFi\bin\;C:\Program Files\Common Files\Intel\WirelessCommon\;C:\Users\Rycius\.dotnet\tools;C:\Users\Rycius\AppData\Local\Programs\Microsoft VS Code\bin;C:\raylib\w64devkit\bin;
+# environment
+COMMONPROGRAMW6432 = C:\Program Files\Common Files
+# makefile (from 'Makefile', line 29)
+RAYLIB_PATH = C:\raylib\raylib
+# environment
+PROCESSOR_ARCHITECTURE = x86
+# environment
+USERPROFILE = C:\Users\Rycius
+# environment
+ALLUSERSPROFILE = C:\ProgramData
+# environment
+NUMBER_OF_PROCESSORS = 8
+# environment
+ELECTRON_RUN_AS_NODE = 1
+# makefile (from 'Makefile', line 89)
+INCLUDE_PATHS = -I. -I$(RAYLIB_PATH)/src -I$(RAYLIB_PATH)/src/external -Isrc -Iinclude -Iinclude/raylib 
+# makefile (from 'Makefile', line 92)
+LDFLAGS = -L. -L$(RAYLIB_RELEASE_PATH) -L$(RAYLIB_PATH)/src
+# default
+.FEATURES := target-specific order-only second-expansion else-if shortest-stem undefine oneshell archives jobserver output-sync
+# automatic
+%F = $(notdir $%)
+# environment
+CHROME_CRASHPAD_PIPE_NAME = \\.\pipe\crashpad_17696_KZOGZLWLPVPKYBNL
+# makefile (from 'Makefile', line 44)
+PLATFORM_OS = WINDOWS
+# environment
+COMPUTERNAME = DESKTOP-I2VGV5B
+# environment
+PROGRAMFILES = C:\Program Files (x86)
+# default
+.LOADED := 
+# environment
+DRIVERDATA = C:\Windows\System32\Drivers\DriverData
+# environment
+ORIGINAL_XDG_CURRENT_DESKTOP = undefined
+# environment
+USERNAME = Rycius
+# environment
+PUBLIC = C:\Users\Public
+# environment
+VSCODE_AMD_ENTRYPOINT = vs/workbench/api/node/extensionHostProcess
+# environment
+VSCODE_CODE_CACHE_PATH = C:\Users\Rycius\AppData\Roaming\Code\CachedData\e4503b30fc78200f846c62cf8091b76ff5547662
+# environment
+APPLICATION_INSIGHTS_NO_DIAGNOSTIC_CHANNEL = true
+# environment
+COMMONPROGRAMFILES = C:\Program Files (x86)\Common Files
+# environment
+LOGONSERVER = \\DESKTOP-I2VGV5B
+# makefile (from 'Makefile', line 117)
+MAKEFILE_PARAMS = $(PROJECT_NAME)
+# environment
+ONEDRIVECONSUMER = C:\Users\Rycius\OneDrive
+# environment
+VSCODE_HANDLES_UNCAUGHT_ERRORS = true
+# environment
+USERDOMAIN = DESKTOP-I2VGV5B
+# environment
+MAKELEVEL := 0
+# makefile (from 'Makefile', line 58)
+MAKE = mingw32-make
+# default
+MAKECMDGOALS := all
+# makefile (from 'Makefile', line 54)
+CC = g++
+# default
+MAKE_VERSION := 4.2
+# makefile
+.DEFAULT_GOAL := all
+# environment
+PROGRAMFILES(X86) = C:\Program Files (x86)
+# automatic
+%D = $(patsubst %/,%,$(patsubst %\,%,$(dir $%)))
+# environment
+LOCALAPPDATA = C:\Users\Rycius\AppData\Local
+# environment
+PSMODULEPATH = C:\Program Files\WindowsPowerShell\Modules;C:\WINDOWS\system32\WindowsPowerShell\v1.0\Modules
+# makefile (from 'Makefile', line 106)
+rwildcard = $(foreach d,$(wildcard $1*),$(call rwildcard,$d/,$2) $(filter $(subst *,%,$2),$d))
+# default
+MAKE_COMMAND := make.exe
+# environment
+PROCESSOR_ARCHITEW6432 = AMD64
+# default
+.VARIABLES := 
+# automatic
+*F = $(notdir $*)
+# environment
+PROCESSOR_IDENTIFIER = Intel64 Family 6 Model 94 Stepping 3, GenuineIntel
+# environment
+OS = Windows_NT
+# environment
+VSCODE_IPC_HOOK = \\.\pipe\64e1c3bde2055cef164067eb0ecd517b-1.70.2-main-sock
+# environment
+HOMEPATH = \Users\Rycius
+# environment
+COMMONPROGRAMFILES(X86) = C:\Program Files (x86)\Common Files
+# environment
+PROMPT = $P$G
+# environment
+MFLAGS = -pqrR
+# automatic
+*D = $(patsubst %/,%,$(patsubst %\,%,$(dir $*)))
+# environment
+SYSTEMROOT = C:\WINDOWS
+# automatic
++D = $(patsubst %/,%,$(patsubst %\,%,$(dir $+)))
+# automatic
++F = $(notdir $+)
+# environment
+APPDATA = C:\Users\Rycius\AppData\Roaming
+# environment
+__COMPAT_LAYER = DetectorsAppHealth
+# environment
+TEMP = C:\Users\Rycius\AppData\Local\Temp
+# environment
+COMSPEC = C:\WINDOWS\system32\cmd.exe
+# makefile (from 'Makefile', line 36)
+PLATFORM = PLATFORM_DESKTOP
+# default
+MAKEFILES := 
+# makefile (from 'Makefile', line 109)
+SRC_DIR = src
+# automatic
+<F = $(notdir $<)
+# makefile (from 'Makefile', line 50)
+RAYLIB_RELEASE_PATH = $(RAYLIB_PATH)/src
+# makefile (from 'Makefile', line 27)
+PROJECT_NAME = game
+# environment
+LC_ALL = C
+# automatic
+^F = $(notdir $^)
+# default
+SUFFIXES := 
+# environment
+SYSTEMDRIVE = C:
+# environment
+SESSIONNAME = Console
+# environment
+PROCESSOR_REVISION = 5e03
+# makefile (from 'Makefile', line 39)
+RAYLIB_LIBTYPE = STATIC
+# default
+.RECIPEPREFIX := 
+# environment
+LANG = C
+# environment
+PROCESSOR_LEVEL = 6
+# environment
+VSCODE_PID = 17696
+# environment
+USERDOMAIN_ROAMINGPROFILE = DESKTOP-I2VGV5B
+# variable set hash-table stats:
+# Load=108/1024=11%, Rehash=0, Collisions=18/160=11%
+
+# Pattern-specific Variable Values
+
+# No pattern-specific variable values.
+
+# Directories
+
+# . (key c:/Users/Rycius/Documents/Projects/hexfun, mtime 1661082969ll): 10 files, no impossibilities.
+# src (key c:/Users/Rycius/Documents/Projects/hexfun/src, mtime 1661086851ll): No files, no impossibilities so far.
+
+# 10 files, no impossibilities in 2 directories.
+
+# Implicit Rules
+
+obj/%.o: src/%.c
+#  recipe to execute (from 'Makefile', line 133):
+	$(CC) -c $< -o build/$@ $(CFLAGS) $(INCLUDE_PATHS) -D$(PLATFORM)
+
+# 1 implicit rules, 0 (0.0%) terminal.
+
+# Files
+
+all:
+#  Phony target (prerequisite of .PHONY).
+#  Command line target.
+#  Implicit rule search has not been done.
+#  Implicit/static pattern stem: ''
+#  File does not exist.
+#  File has been updated.
+#  Failed to be updated.
+# automatic
+# @ := all
+# automatic
+# % := 
+# automatic
+# * := 
+# automatic
+# + := 
+# automatic
+# | := 
+# automatic
+# < := 
+# automatic
+# ^ := 
+# automatic
+# ? := 
+# variable set hash-table stats:
+# Load=8/32=25%, Rehash=0, Collisions=4/14=29%
+#  recipe to execute (from 'Makefile', line 123):
+	$(MAKE) $(MAKEFILE_PARAMS)
+
+.PHONY: all clean
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+
+# Not a target:
+.SUFFIXES:
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+
+# Not a target:
+Makefile:
+#  Implicit rule search has been done.
+#  Last modified 2022-08-19 14:30:38
+#  File has been updated.
+#  Successfully updated.
+
+# Not a target:
+main.cpp:
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+
+# Not a target:
+.DEFAULT:
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+
+clean:
+#  Phony target (prerequisite of .PHONY).
+#  Implicit rule search has not been done.
+#  File does not exist.
+#  File has not been updated.
+#  recipe to execute (from 'Makefile', line 139):
+		del *.o *.exe /s
+	@echo Cleaning done
+
+game: main.cpp
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+#  recipe to execute (from 'Makefile', line 127):
+	$(CC) -o build/$(PROJECT_NAME)$(EXT) $(OBJS) $(CFLAGS) $(INCLUDE_PATHS) $(LDFLAGS) $(LDLIBS) -D$(PLATFORM)
+
+# files hash-table stats:
+# Load=8/1024=1%, Rehash=0, Collisions=0/25=0%
+# VPATH Search Paths
+
+# No 'vpath' search paths.
+
+# No general ('VPATH' variable) search path.
+
+# strcache buffers: 1 (0) / strings = 19 / storage = 153 B / avg = 8 B
+# current buf: size = 8174 B / used = 153 B  
+/ count = 19 / avg = 8 B
+
+# strcache performance: lookups = 31 / hit rate = 38%
+# hash-table stats:
+# Load=19/8192=0%, Rehash=0, Collisions=1/31=3%
+# Finished Make data base on Sun Aug 21 22:08:44 2022
+
+ 
