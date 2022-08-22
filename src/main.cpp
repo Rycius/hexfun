@@ -242,7 +242,7 @@ int main()
 
 
     Camera2D camera = {0};
-    camera.zoom = 3.0f;
+    camera.zoom = 1.0f;
     camera.offset.x = 0.0f; 
     camera.offset.y = 0.0f; 
 
@@ -250,8 +250,8 @@ int main()
     float cameraZoomSpeed = 2.0f;
 
 
-    int32 mapWidth = 74;
-    int32 mapHeight = 46;
+    int32 mapWidth = 106;
+    int32 mapHeight = 66;
 
     Image hexGrasslandImg = LoadImage("../resources/hex_grassland.png");
     Texture hexGrasslandTex = LoadTextureFromImage(hexGrasslandImg);
@@ -261,6 +261,15 @@ int main()
 
     Image treesImg = LoadImage("../resources/trees.png");
     Texture treesTex = LoadTextureFromImage(treesImg);
+
+
+    int32 mapWidthInPixels = HEX_CENTRE_DIST_HOR * mapWidth + HEX_WIDTH / 2.0f;
+    int32 mapHeightInPixels = HEX_CENTRE_DIST_VERT * mapHeight + HEX_HEIGHT * 0.25f;
+
+    // W: 8192
+    // H: 4096
+    
+
 
     v2 *hexPoints = 0;
     for(int32 i = 7; i > 0; i--)
@@ -354,7 +363,6 @@ int main()
             TraceLog(LOG_INFO, TextFormat("OFFSET x:%.2f y:%.2f", camera.offset.x, camera.offset.y));
             TraceLog(LOG_INFO, TextFormat("TARGET x:%.2f y:%.2f",   camera.target.x, camera.target.y));
         }
-
         
         //----------------------------------------------------------------------------------
 
@@ -405,7 +413,8 @@ int main()
             DrawPoly(pos, 6, HEX_SIZE, 0.0f, BLUE);
 
 
-            
+            DrawLineEx(Vec2(-HEX_WIDTH/2.0f, -5.0f), Vec2(mapWidthInPixels-HEX_WIDTH/2.0f, -5.0f), 5.0f, RED);
+            DrawLineEx(Vec2(0.0f, -HEX_HEIGHT/2.0f), Vec2(0.0f, mapHeightInPixels-HEX_HEIGHT/2.0f), 5.0f, RED);
             
 
             EndMode2D();
