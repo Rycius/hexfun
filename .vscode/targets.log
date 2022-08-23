@@ -9,7 +9,7 @@ mingw32-make game
 # This is free software: you are free to change and redistribute it.
 # There is NO WARRANTY, to the extent permitted by law.
 
-# Make data base, printed on Tue Aug 23 08:18:40 2022
+# Make data base, printed on Tue Aug 23 16:49:00 2022
 
 # Variables
 
@@ -74,7 +74,7 @@ VSCODE_CWD = C:\Users\rytisl\Documents\Raylib\hexfun
 # default
 MAKE_HOST := i686-w64-mingw32
 # makefile (from 'Makefile', line 45)
-PATH := C:/raylib/w64devkit/bin:C:/raylib/w64devkit/bin;C:\WINDOWS\system32;C:\WINDOWS;C:\WINDOWS\System32\Wbem;C:\WINDOWS\System32\WindowsPowerShell\v1.0\;C:\WINDOWS\System32\OpenSSH\;C:\Program Files (x86)\ATI Technologies\ATI.ACE\Core-Static;C:\Program Files (x86)\AMD\ATI.ACE\Core-Static;C:\Program Files\dotnet\;C:\Users\rytisl\AppData\Local\Microsoft\WindowsApps;C:\Users\rytisl\AppData\Local\Programs\Microsoft VS Code\bin;C:\raylib\w64devkit\bin;C:\Program Files\CMake\bin;C:\Users\rytisl\.dotnet\tools;C:\Program Files\Mono\bin;C:\Program Files\dotnet;C:\Program Files (x86)\MSBuild\12.0\Bin;C:\Program Files (x86)\MSBuild;;C:\Program Files\Radan Software\Radan\bin;C:\Program Files\Radan Software\Radan\nt\x64\bin;C:\Program Files\Radan Software\Radan\nt\i386\bin
+PATH := C:/raylib/w64devkit/bin:C:/raylib/w64devkit/bin;C:\WINDOWS\system32;C:\WINDOWS;C:\WINDOWS\System32\Wbem;C:\WINDOWS\System32\WindowsPowerShell\v1.0\;C:\WINDOWS\System32\OpenSSH\;C:\Program Files (x86)\ATI Technologies\ATI.ACE\Core-Static;C:\Program Files (x86)\AMD\ATI.ACE\Core-Static;C:\Program Files\dotnet\;C:\Program Files\Git\cmd;C:\Users\rytisl\AppData\Local\Microsoft\WindowsApps;C:\Users\rytisl\AppData\Local\Programs\Microsoft VS Code\bin;C:\raylib\w64devkit\bin;C:\Program Files\CMake\bin;C:\Users\rytisl\.dotnet\tools;C:\Program Files\Mono\bin;C:\Program Files\dotnet;C:\Program Files (x86)\MSBuild\12.0\Bin;C:\Program Files (x86)\MSBuild;
 # environment
 COMMONPROGRAMW6432 = C:\Program Files\Common Files
 # makefile (from 'Makefile', line 29)
@@ -90,10 +90,7 @@ NUMBER_OF_PROCESSORS = 8
 # environment
 ELECTRON_RUN_AS_NODE = 1
 # makefile (from 'Makefile', line 89)
-INCLUDE_PATHS = -I. -I$(RAYLIB_PATH)/src -I$(RAY 
-make[1]: *** No rule to make target 'main.cpp', needed by 'game'.  Stop.
-
-LIB_PATH)/src/external -Isrc -Iinclude -Iinclude/raylib 
+INCLUDE_PATHS = -I. -I$(RAYLIB_PATH)/src -I$(RAYLIB_PATH)/src/external -Isrc -Iinclude -Iinclude/raylib 
 # makefile (from 'Makefile', line 92)
 LDFLAGS = -L. -L$(RAYLIB_RELEASE_PATH) -L$(RAYLIB_PATH)/src
 # default
@@ -101,7 +98,7 @@ LDFLAGS = -L. -L$(RAYLIB_RELEASE_PATH) -L$(RAYLIB_PATH)/src
 # automatic
 %F = $(notdir $%)
 # environment
-CHROME_CRASHPAD_PIPE_NAME = \\.\pipe\crashpad_11160_FADTGGQQHVFARLVX
+CHROME_CRASHPAD_PIPE_NAME = \\.\pipe\crashpad_456_JJRVAVHLBVWQGPQC
 # makefile (from 'Makefile', line 44)
 PLATFORM_OS = WINDOWS
 # environment
@@ -233,7 +230,7 @@ LANG = C
 # environment
 PROCESSOR_LEVEL = 6
 # environment
-VSCODE_PID = 11160
+VSCODE_PID = 456
 # environment
 USERDOMAIN_ROAMINGPROFILE = ABTPRODUCTS
 # variable set hash-table stats:
@@ -323,10 +320,12 @@ game: main.cpp
 # strcache performance: lookups = 32 / hit rate = 34%
 # hash-table stats:
 # Load=21/8192=0%, Rehash=0, Collisions=1/32=3%
-# Finished Make data base on Tue Aug 23 08:18:40 2022
+# Finished Make data base on Tue Aug 23 16:49:00 2022
 
 # make[1]: Leaving directory 'c:/Users/rytisl/Documents/Raylib/hexfun'
  
+make[1]: *** No rule to make target 'main.cpp', needed by 'game'.  Stop.
+
 make.exe: *** [Makefile:123: all] Error 2
 
 # GNU Make 4.2
@@ -336,7 +335,7 @@ make.exe: *** [Makefile:123: all] Error 2
 # This is free software: you are free to change and redistribute it.
 # There is NO WARRANTY, to the extent permitted by law.
 
-# Make data base, printed on Tue Aug 23 08:18:40 2022
+# Make data base, printed on Tue Aug 23 16:49:00 2022
 
 # Variables
 
@@ -401,7 +400,7 @@ VSCODE_CWD = C:\Users\rytisl\Documents\Raylib\hexfun
 # default
 MAKE_HOST := i686-w64-mingw32
 # makefile (from 'Makefile', line 45)
-PATH := C:/raylib/w64devkit/bin;C:\WINDOWS\system32;C:\WINDOWS;C:\WINDOWS\System32\Wbem;C:\WINDOWS\System32\WindowsPowerShell\v1.0\;C:\WINDOWS\System32\OpenSSH\;C:\Program Files (x86)\ATI Technologies\ATI.ACE\Core-Static;C:\Program Files (x86)\AMD\ATI.ACE\Core-Static;C:\Program Files\dotnet\;C:\Users\rytisl\AppData\Local\Microsoft\WindowsApps;C:\Users\rytisl\AppData\Local\Programs\Microsoft VS Code\bin;C:\raylib\w64devkit\bin;C:\Program Files\CMake\bin;C:\Users\rytisl\.dotnet\tools;C:\Program Files\Mono\bin;C:\Program Files\dotnet;C:\Program Files (x86)\MSBuild\12.0\Bin;C:\Program Files (x86)\MSBuild;;C:\Program Files\Radan Software\Radan\bin;C:\Program Files\Radan Software\Radan\nt\x64\bin;C:\Program Files\Radan Software\Radan\nt\i386\bin
+PATH := C:/raylib/w64devkit/bin;C:\WINDOWS\system32;C:\WINDOWS;C:\WINDOWS\System32\Wbem;C:\WINDOWS\System32\WindowsPowerShell\v1.0\;C:\WINDOWS\System32\OpenSSH\;C:\Program Files (x86)\ATI Technologies\ATI.ACE\Core-Static;C:\Program Files (x86)\AMD\ATI.ACE\Core-Static;C:\Program Files\dotnet\;C:\Program Files\Git\cmd;C:\Users\rytisl\AppData\Local\Microsoft\WindowsApps;C:\Users\rytisl\AppData\Local\Programs\Microsoft VS Code\bin;C:\raylib\w64devkit\bin;C:\Program Files\CMake\bin;C:\Users\rytisl\.dotnet\tools;C:\Program Files\Mono\bin;C:\Program Files\dotnet;C:\Program Files (x86)\MSBuild\12.0\Bin;C:\Program Files (x86)\MSBuild;
 # environment
 COMMONPROGRAMW6432 = C:\Program Files\Common Files
 # makefile (from 'Makefile', line 29)
@@ -425,7 +424,7 @@ LDFLAGS = -L. -L$(RAYLIB_RELEASE_PATH) -L$(RAYLIB_PATH)/src
 # automatic
 %F = $(notdir $%)
 # environment
-CHROME_CRASHPAD_PIPE_NAME = \\.\pipe\crashpad_11160_FADTGGQQHVFARLVX
+CHROME_CRASHPAD_PIPE_NAME = \\.\pipe\crashpad_456_JJRVAVHLBVWQGPQC
 # makefile (from 'Makefile', line 44)
 PLATFORM_OS = WINDOWS
 # environment
@@ -557,7 +556,7 @@ LANG = C
 # environment
 PROCESSOR_LEVEL = 6
 # environment
-VSCODE_PID = 11160
+VSCODE_PID = 456
 # environment
 USERDOMAIN_ROAMINGPROFILE = ABTPRODUCTS
 # variable set hash-table stats:
@@ -673,6 +672,6 @@ game: main.cpp
 # strcache performance: lookups = 33 / hit rate = 36%
 # hash-table stats:
 # Load=21/8192=0%, Rehash=0, Collisions=1/33=3%
-# Finished Make data base on Tue Aug 23 08:18:40 2022
+# Finished Make data base on Tue Aug 23 16:49:00 2022
 
  
