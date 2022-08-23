@@ -1,5 +1,6 @@
 #define MY_DEBUG 1
 
+#define STB_DS_IMPLEMENTATION
 #include "main.h"
 #include "gui.cpp"
 
@@ -199,15 +200,58 @@ offset_coord OffsetNeighbor(offset_coord offset, direction dir)
     return result;
 }
 
+offset_coord *OffsetNeighbors(offset_coord offset)
+{
+    offset_coord *result = 0;
+    arrsetcap(result, 6);
+
+    for(int32 i = 0; i < DIR_COUNT; i++)
+    {
+        arrput(result, OffsetNeighbor(offset, (direction)i));
+    }
+
+    return result;
+}
+
+uint32 ArrAddrFromOffset(offset_coord offset, int32 mapWidth, int32 mapHeight)
+{
+    uint32 result = 0;
+
+    if(offset.row >= 0 || offset.row < mapHeight)
+    {
+        result = offset.row * mapWidth;
+        
+        if(offset.col < 0)
+        {
+            int32 mod = offset.col % mapWidth;
+            if(mod < 0)
+                result += mapWidth + offset.col % mapWidth;
+            else
+                result += offset.col % mapWidth;   
+        } 
+        else
+            result += offset.col % mapWidth;
+    }
+
+    return result;
+}
+
 map_tile *GetMapTile(map_tile *map, int32 mapWidth, int32 mapHeight, offset_coord offset)
 {
     map_tile *result = 0;
 
-    Assert(offset.row >= 0 && offset.row < mapHeight);
+    if(offset.row < 0 || offset.row > mapHeight - 1) return 0;
+
 
     uint32 address = offset.row * mapWidth;
     if(offset.col < 0)
-        address += mapWidth + offset.col % mapWidth;
+    {
+        int32 mod = offset.col % mapWidth;
+        if(mod < 0)
+            address += mapWidth + offset.col % mapWidth;
+        else
+            address += offset.col % mapWidth;   
+    } 
     else
         address += offset.col % mapWidth;
 
@@ -216,20 +260,95 @@ map_tile *GetMapTile(map_tile *map, int32 mapWidth, int32 mapHeight, offset_coor
     return result;
 }
 
+float Heuristic(offset_coord a, offset_coord b)
+{
+    float result = 0;
+
+    result = abs(a.col - b.col) + abs(a.row - b.row);
+
+    return result;
+}
+
+
+
+
+offset_coord *FindPath(map_tile *map, int32 mapWidth, int32 mapHeight, offset_coord start, offset_coord end)
+{
+    offset_coord *result = 0;
+
+    offset_coord *frontier = 0;
+    arrsetcap(frontier, mapWidth*mapHeight);
+    arrput(frontier, start);
+
+    offset_coord cameFrom[mapWidth*mapHeight] = {0};
+
+    float costSoFar[mapWidth*mapHeight] = {-1.0f};
+
+    for(int32 i = 0; i < mapWidth*mapHeight; i++)
+    {
+        costSoFar[i] = -1.0f;
+        cameFrom[i] = Offset(0, 0);
+    }
+    costSoFar[ArrAddrFromOffset(start, mapWidth, mapHeight)] = 0;
+
+    while(arrlen(frontier) > 0)
+    {
+        offset_coord current = frontier[0];
+        arrdel(frontier, 0);
+
+        if(current.col == end.col && current.row == end.row) 
+            break;
+
+        offset_coord *neighbors = OffsetNeighbors(current);
+        for(int32 i = 0; i < arrlen(neighbors); i++)
+        {
+            offset_coord next = neighbors[i];
+            if(next.row < 0 || next.row > mapHeight - 1) continue;
+
+            float newCost = costSoFar[ArrAddrFromOffset(current, mapWidth, mapHeight)] + 1; // + MoveCost(current, next)
+
+            if(costSoFar[ArrAddrFromOffset(next, mapWidth, mapHeight)] < -0.5f || newCost < costSoFar[ArrAddrFromOffset(next, mapWidth, mapHeight)])
+            {
+                costSoFar[ArrAddrFromOffset(next, mapWidth, mapHeight)] = newCost;
+                arrput(frontier, next);
+                cameFrom[ArrAddrFromOffset(next, mapWidth, mapHeight)] = current;
+            }
+        }
+
+        if(neighbors)
+            arrfree(neighbors);
+    }
+    
+    arrput(result, end);
+    offset_coord current = cameFrom[ArrAddrFromOffset(end, mapWidth, mapHeight)];
+
+    while(current.col != start.col && current.row != start.row)
+    {
+        arrput(result, current);
+        uint32 addr = ArrAddrFromOffset(current, mapWidth, mapHeight);
+        current = cameFrom[addr];
+    }
+
+    if(frontier)
+        arrfree(frontier);
+
+    return result;
+}
+
 int main() 
 {
 
-    Image img = GenImageColor(HEX_TEXTURE_SIZE, HEX_TEXTURE_SIZE, Fade(WHITE, 0.0f));
+    // Image img = GenImageColor(HEX_TEXTURE_SIZE, HEX_TEXTURE_SIZE, Fade(WHITE, 0.0f));
 
-    v2 prevPoint = PointyHexCorner(Vec2(HEX_TEXTURE_SIZE/2, HEX_TEXTURE_SIZE/2), HEX_TEXTURE_HEX_SIZE, 0);
-    for(int32 i = 1; i < 6; i++)
-    {
-        v2 point = PointyHexCorner(Vec2(HEX_TEXTURE_SIZE/2, HEX_TEXTURE_SIZE/2), HEX_TEXTURE_HEX_SIZE, i);
-        ImageDrawLineV(&img, prevPoint, point, BLACK); 
-        prevPoint = point;
-    } 
-    ImageDrawLineV(&img, prevPoint, PointyHexCorner(Vec2(HEX_TEXTURE_SIZE/2, HEX_TEXTURE_SIZE/2), HEX_TEXTURE_HEX_SIZE, 0), BLACK); 
-    ExportImage(img, "img.png");
+    // v2 prevPoint = PointyHexCorner(Vec2(HEX_TEXTURE_SIZE/2, HEX_TEXTURE_SIZE/2), HEX_TEXTURE_HEX_SIZE, 0);
+    // for(int32 i = 1; i < 6; i++)
+    // {
+    //     v2 point = PointyHexCorner(Vec2(HEX_TEXTURE_SIZE/2, HEX_TEXTURE_SIZE/2), HEX_TEXTURE_HEX_SIZE, i);
+    //     ImageDrawLineV(&img, prevPoint, point, BLACK); 
+    //     prevPoint = point;
+    // } 
+    // ImageDrawLineV(&img, prevPoint, PointyHexCorner(Vec2(HEX_TEXTURE_SIZE/2, HEX_TEXTURE_SIZE/2), HEX_TEXTURE_HEX_SIZE, 0), BLACK); 
+    // ExportImage(img, "img.png");
 
     // Initialization
     //--------------------------------------------------------------------------------------
@@ -248,10 +367,11 @@ int main()
 
     float cameraSpeed = 10.0f;
     float cameraZoomSpeed = 2.0f;
+    float cameraZoomTarget = 1.0f;
 
 
-    int32 mapWidth = 106;
-    int32 mapHeight = 66;
+    int32 mapWidth = 64;
+    int32 mapHeight = 48;
 
     Image hexGrasslandImg = LoadImage("../resources/hex_grassland.png");
     Texture hexGrasslandTex = LoadTextureFromImage(hexGrasslandImg);
@@ -262,13 +382,13 @@ int main()
     Image treesImg = LoadImage("../resources/trees.png");
     Texture treesTex = LoadTextureFromImage(treesImg);
 
+    Image catImg = LoadImage("../resources/cat.png");
+    Texture catTex = LoadTextureFromImage(catImg);
+
 
     int32 mapWidthInPixels = HEX_CENTRE_DIST_HOR * mapWidth + HEX_WIDTH / 2.0f;
     int32 mapHeightInPixels = HEX_CENTRE_DIST_VERT * mapHeight + HEX_HEIGHT * 0.25f;
 
-    // W: 8192
-    // H: 4096
-    
 
 
     v2 *hexPoints = 0;
@@ -316,6 +436,10 @@ int main()
         }
     }
 
+    offset_coord pathEnd = {0};
+
+    offset_coord *path = 0;
+
     //--------------------------------------------------------------------------------------
     // Main game loop
     while (!WindowShouldClose())    // Detect window close button or ESC key
@@ -334,34 +458,35 @@ int main()
 			// set the target to match, so that the camera maps the world space point under the cursor to the screen space point under the cursor at any zoom
 			camera.target = mouseWorldPos;
 			// zoom
-			camera.zoom = Clamp(camera.zoom + wheel * cameraZoomSpeed, 1.0f, 10.f);
-			
+			cameraZoomTarget = Clamp(camera.zoom + wheel * cameraZoomSpeed, 1.0f, 10.f);
 		}
+
+        camera.zoom = Lerp(camera.zoom, cameraZoomTarget, 0.1f);
 
         //////////////////////// CAMERA MOVEMENT ////////////////////////////
         if(IsKeyDown(KEY_W))
         {
             camera.target.y -= cameraSpeed; 
-            TraceLog(LOG_INFO, TextFormat("OFFSET x:%.2f y:%.2f", camera.offset.x, camera.offset.y));
-            TraceLog(LOG_INFO, TextFormat("TARGET x:%.2f y:%.2f", camera.target.x, camera.target.y));
         }
         if(IsKeyDown(KEY_S))
         {
             camera.target.y += cameraSpeed; 
-            TraceLog(LOG_INFO, TextFormat("OFFSET x:%.2f y:%.2f", camera.offset.x, camera.offset.y));
-            TraceLog(LOG_INFO, TextFormat("TARGET x:%.2f y:%.2f", camera.target.x, camera.target.y));
         }
         if(IsKeyDown(KEY_A))
         {
             camera.target.x -= cameraSpeed; 
-            TraceLog(LOG_INFO, TextFormat("OFFSET x:%.2f y:%.2f", camera.offset.x, camera.offset.y));
-            TraceLog(LOG_INFO, TextFormat("TARGET x:%.2f y:%.2f", camera.target.x, camera.target.y));
         }
         if(IsKeyDown(KEY_D))
         {
             camera.target.x += cameraSpeed; 
-            TraceLog(LOG_INFO, TextFormat("OFFSET x:%.2f y:%.2f", camera.offset.x, camera.offset.y));
-            TraceLog(LOG_INFO, TextFormat("TARGET x:%.2f y:%.2f",   camera.target.x, camera.target.y));
+        }
+
+
+        if(IsMouseButtonPressed(0))
+        {
+            pathEnd = ScreenToOffset(GetScreenToWorld2D(GetMousePosition(), camera));
+
+            path = FindPath(map, mapWidth, mapHeight, Offset(0, 2), pathEnd);
         }
         
         //----------------------------------------------------------------------------------
@@ -370,10 +495,8 @@ int main()
         //----------------------------------------------------------------------------------
         BeginDrawing();
 
-            ClearBackground(RAYWHITE);
+            ClearBackground(PINK);
             BeginMode2D(camera);
-
-            
 
             int32 heightToDraw = screenHeight / HEX_CENTRE_DIST_VERT + 3;
             int32 widthToDraw = screenWidth / HEX_CENTRE_DIST_HOR + 3;
@@ -383,7 +506,6 @@ int main()
             offsetStart.col -=1;
             if(offsetStart.row > 0) offsetStart.row -= 1;
             
-
             for(int32 y = offsetStart.row; y < offsetStart.row + heightToDraw; y++)
             {
                 for(int32 x = offsetStart.col; x < offsetStart.col + widthToDraw; x++)
@@ -395,14 +517,16 @@ int main()
                     const char *str = TextFormat("%d:%d", tile->offset.row, tile->offset.col);
 
                     v2 center = OffsetToScreen(offset);
-                    
+                    Assert(tile);
+                    Assert(tile->texture.id >= 0);
                     DrawTexturePoly(tile->texture, center, hexPoints, texCoord, 7, tile->overlayColor);
-                    DrawTexturePoly(treesTex, center, hexPoints, texCoord, 7, WHITE);
-                    DrawTexturePoly(treesTex, center, hexPoints, texCoord, 7, WHITE);
+                    //DrawTexturePoly(treesTex, center, hexPoints, texCoord, 7, WHITE);
                     //DrawPoly(center, 6, HEX_SIZE, 0.0f, tile->color);
                     DrawPolyLines(center, 6, HEX_SIZE, 0.0f, BLACK);
                     DrawText(str, center.x - 10, center.y, 10, BLACK);
-                    
+
+                    if(path && y == 47 && x == 63)
+                        int32 a = 0;
                 }
             }
 
@@ -410,14 +534,20 @@ int main()
             offset_coord offset = ScreenToOffset(GetScreenToWorld2D(GetMousePosition(), camera));
             v2 pos = OffsetToScreen(offset);
 
-            DrawPoly(pos, 6, HEX_SIZE, 0.0f, BLUE);
+            DrawPoly(pos, 6, HEX_SIZE, 0.0f, BLUE);    
 
-
-            DrawLineEx(Vec2(-HEX_WIDTH/2.0f, -5.0f), Vec2(mapWidthInPixels-HEX_WIDTH/2.0f, -5.0f), 5.0f, RED);
-            DrawLineEx(Vec2(0.0f, -HEX_HEIGHT/2.0f), Vec2(0.0f, mapHeightInPixels-HEX_HEIGHT/2.0f), 5.0f, RED);
-            
+            if(path)
+            {
+                for(int32 i = 0; i < arrlen(path); i++)
+                {
+                    offset_coord pathOffset = path[i];
+                    v2 pathPos = OffsetToScreen(pathOffset);
+                    DrawCircleV(pathPos, 30.0f, BLACK);
+                }
+            }        
 
             EndMode2D();
+
             DrawFPS(10, 10);
 
         EndDrawing();

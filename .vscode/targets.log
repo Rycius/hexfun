@@ -1,7 +1,7 @@
 make.exe all --print-data-base --no-builtin-variables --no-builtin-rules --question
 mingw32-make game
  
-# make[1]: Entering directory 'c:/Users/Rycius/Documents/Projects/hexfun'
+# make[1]: Entering directory 'c:/Users/rytisl/Documents/Raylib/hexfun'
 # GNU Make 4.2
 # Built for i686-w64-mingw32
 # Copyright (C) 1988-2016 Free Software Foundation, Inc.
@@ -9,7 +9,7 @@ mingw32-make game
 # This is free software: you are free to change and redistribute it.
 # There is NO WARRANTY, to the extent permitted by law.
 
-# Make data base, printed on Mon Aug 22 23:29:58 2022
+# Make data base, printed on Tue Aug 23 08:18:40 2022
 
 # Variables
 
@@ -34,7 +34,7 @@ RAYLIB_VERSION = 4.0.0
 # automatic
 @D = $(patsubst %/,%,$(patsubst %\,%,$(dir $@)))
 # environment
-HOMEDRIVE = C:
+HOMEDRIVE = U:
 # automatic
 @F = $(notdir $@)
 # makefile (from 'Makefile', line 100)
@@ -42,7 +42,7 @@ LDLIBS = -lraylib -lopengl32 -lgdi32 -lwinmm
 # automatic
 ^D = $(patsubst %/,%,$(patsubst %\,%,$(dir $^)))
 # makefile
-CURDIR := c:/Users/Rycius/Documents/Projects/hexfun
+CURDIR := c:/Users/rytisl/Documents/Raylib/hexfun
 # default
 SHELL := C:/raylib/w64devkit/bin/sh.exe
 # environment
@@ -52,15 +52,15 @@ VSCODE_NLS_CONFIG = {"locale":"en-us","availableLanguages":{},"_languagePackSupp
 # makefile (from 'Makefile', line 82)
 CFLAGS = -Wall -std=c++11 -D_DEFAULT_SOURCE -Wno-missing-braces -g -O0 -Wno-narrowing -Wno-sign-compare -Wno-enum-compare $(RAYLIB_PATH)/src/raylib.rc.data
 # environment
-ONEDRIVE = C:\Users\Rycius\OneDrive
+ONEDRIVE = C:\Users\rytisl\OneDrive
 # environment
 PATHEXT = .COM;.EXE;.BAT;.CMD;.VBS;.VBE;.JS;.JSE;.WSF;.WSH;.MSC
 # makefile (from 'Makefile', line 1)
 MAKEFILE_LIST :=  Makefile
 # environment
-TMP = C:\Users\Rycius\AppData\Local\Temp
-# makefile (from 'Makefile', line 110)
-OBJ_DIR = obj
+TMP = C:\Users\rytisl\AppData\Local\Temp
+# environment
+PROMPT = $P$G
 # makefile (from 'Makefile', line 42)
 BUILD_MODE = DEBUG
 # environment
@@ -70,11 +70,11 @@ OBJS = main.cpp
 # environment
 PROGRAMDATA = C:\ProgramData
 # environment
-VSCODE_CWD = C:\Users\Rycius\Documents\Projects\hexfun
+VSCODE_CWD = C:\Users\rytisl\Documents\Raylib\hexfun
 # default
 MAKE_HOST := i686-w64-mingw32
 # makefile (from 'Makefile', line 45)
-PATH := C:/raylib/w64devkit/bin:C:/raylib/w64devkit/bin;C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0\;C:\Program Files\Intel\WiFi\bin\;C:\Program Files\Common Files\Intel\WirelessCommon\;C:\WINDOWS\system32;C:\WINDOWS;C:\WINDOWS\System32\Wbem;C:\WINDOWS\System32\WindowsPowerShell\v1.0\;C:\WINDOWS\System32\OpenSSH\;C:\Program Files\dotnet\;C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\;C:\Users\Rycius\Downloads\Odin-dev-2022-04;C:\Program Files\Git\cmd;C:\Program Files (x86)\NVIDIA Corporation\PhysX\Common;C:\Users\Rycius\AppData\Local\Programs\Python\Python37\Scripts\;C:\Users\Rycius\AppData\Local\Programs\Python\Python37\;C:\Users\Rycius\AppData\Local\Programs\Python\Launcher\;C:\Users\Rycius\AppData\Local\Microsoft\WindowsApps;C:\Program Files\Intel\WiFi\bin\;C:\Program Files\Common Files\Intel\WirelessCommon\;C:\Users\Rycius\.dotnet\tools;C:\Users\Rycius\AppData\Local\Programs\Microsoft VS Code\bin;C:\raylib\w64devkit\bin;
+PATH := C:/raylib/w64devkit/bin:C:/raylib/w64devkit/bin;C:\WINDOWS\system32;C:\WINDOWS;C:\WINDOWS\System32\Wbem;C:\WINDOWS\System32\WindowsPowerShell\v1.0\;C:\WINDOWS\System32\OpenSSH\;C:\Program Files (x86)\ATI Technologies\ATI.ACE\Core-Static;C:\Program Files (x86)\AMD\ATI.ACE\Core-Static;C:\Program Files\dotnet\;C:\Users\rytisl\AppData\Local\Microsoft\WindowsApps;C:\Users\rytisl\AppData\Local\Programs\Microsoft VS Code\bin;C:\raylib\w64devkit\bin;C:\Program Files\CMake\bin;C:\Users\rytisl\.dotnet\tools;C:\Program Files\Mono\bin;C:\Program Files\dotnet;C:\Program Files (x86)\MSBuild\12.0\Bin;C:\Program Files (x86)\MSBuild;;C:\Program Files\Radan Software\Radan\bin;C:\Program Files\Radan Software\Radan\nt\x64\bin;C:\Program Files\Radan Software\Radan\nt\i386\bin
 # environment
 COMMONPROGRAMW6432 = C:\Program Files\Common Files
 # makefile (from 'Makefile', line 29)
@@ -82,7 +82,7 @@ RAYLIB_PATH = C:\raylib\raylib
 # environment
 PROCESSOR_ARCHITECTURE = x86
 # environment
-USERPROFILE = C:\Users\Rycius
+USERPROFILE = C:\Users\rytisl
 # environment
 ALLUSERSPROFILE = C:\ProgramData
 # environment
@@ -90,7 +90,10 @@ NUMBER_OF_PROCESSORS = 8
 # environment
 ELECTRON_RUN_AS_NODE = 1
 # makefile (from 'Makefile', line 89)
-INCLUDE_PATHS = -I. -I$(RAYLIB_PATH)/src -I$(RAYLIB_PATH)/src/external -Isrc -Iinclude -Iinclude/raylib 
+INCLUDE_PATHS = -I. -I$(RAYLIB_PATH)/src -I$(RAY 
+make[1]: *** No rule to make target 'main.cpp', needed by 'game'.  Stop.
+
+LIB_PATH)/src/external -Isrc -Iinclude -Iinclude/raylib 
 # makefile (from 'Makefile', line 92)
 LDFLAGS = -L. -L$(RAYLIB_RELEASE_PATH) -L$(RAYLIB_PATH)/src
 # default
@@ -98,41 +101,43 @@ LDFLAGS = -L. -L$(RAYLIB_RELEASE_PATH) -L$(RAYLIB_PATH)/src
 # automatic
 %F = $(notdir $%)
 # environment
-CHROME_CRASHPAD_PIPE_NAME = \\.\pipe\crashpad_21536_PGNGCICZLCGIXLQF
+CHROME_CRASHPAD_PIPE_NAME = \\.\pipe\crashpad_11160_FADTGGQQHVFARLVX
 # makefile (from 'Makefile', line 44)
 PLATFORM_OS = WINDOWS
 # environment
-COMPUTERNAME = DESKTOP-I2VGV5B
+COMPUTERNAME = EASKTP13773DW
 # environment
 PROGRAMFILES = C:\Program Files (x86)
 # default
 .LOADED := 
 # environment
+USERDNSDOMAIN = ABTPRODUCTS.LOCAL
+# environment
 DRIVERDATA = C:\Windows\System32\Drivers\DriverData
 # environment
 ORIGINAL_XDG_CURRENT_DESKTOP = undefined
 # environment
-USERNAME = Rycius
+USERNAME = RytisL
 # environment
 PUBLIC = C:\Users\Public
 # environment
 VSCODE_AMD_ENTRYPOINT = vs/workbench/api/node/extensionHostProcess
 # environment
-VSCODE_CODE_CACHE_PATH = C:\Users\Rycius\AppData\Roaming\Code\CachedData\e4503b30fc78200f846c62cf8091b76ff5547662
+VSCODE_CODE_CACHE_PATH = C:\Users\rytisl\AppData\Roaming\Code\CachedData\e4503b30fc78200f846c62cf8091b76ff5547662
 # environment
 APPLICATION_INSIGHTS_NO_DIAGNOSTIC_CHANNEL = true
 # environment
 COMMONPROGRAMFILES = C:\Program Files (x86)\Common Files
 # environment
-LOGONSERVER = \\DESKTOP-I2VGV5B
+LOGONSERVER = \\ABT-SBS
 # makefile (from 'Makefile', line 117)
 MAKEFILE_PARAMS = $(PROJECT_NAME)
 # environment
-ONEDRIVECONSUMER = C:\Users\Rycius\OneDrive
+ONEDRIVECONSUMER = C:\Users\rytisl\OneDrive
 # environment
 VSCODE_HANDLES_UNCAUGHT_ERRORS = true
 # environment
-USERDOMAIN = DESKTOP-I2VGV5B
+USERDOMAIN = ABTPRODUCTS
 # environment
 MAKELEVEL := 1
 # makefile (from 'Makefile', line 58)
@@ -150,7 +155,7 @@ PROGRAMFILES(X86) = C:\Program Files (x86)
 # automatic
 %D = $(patsubst %/,%,$(patsubst %\,%,$(dir $%)))
 # environment
-LOCALAPPDATA = C:\Users\Rycius\AppData\Local
+LOCALAPPDATA = C:\Users\rytisl\AppData\Local
 # environment
 PSMODULEPATH = C:\Program Files\WindowsPowerShell\Modules;C:\WINDOWS\system32\WindowsPowerShell\v1.0\Modules
 # makefile (from 'Makefile', line 106)
@@ -164,17 +169,17 @@ PROCESSOR_ARCHITEW6432 = AMD64
 # automatic
 *F = $(notdir $*)
 # environment
-PROCESSOR_IDENTIFIER = Intel64 Family 6 Model 94 Stepping 3, GenuineIntel
+PROCESSOR_IDENTIFIER = Intel64 Family 6 Model 58 Stepping 9, GenuineIntel
 # environment
 OS = Windows_NT
 # environment
-VSCODE_IPC_HOOK = \\.\pipe\64e1c3bde2055cef164067eb0ecd517b-1.70.2-main-sock
+VSCODE_IPC_HOOK = \\.\pipe\da44601d0c782ba16105533545ffd455-1.70.2-main-sock
 # environment
-HOMEPATH = \Users\Rycius
+HOMEPATH = \
 # environment
 COMMONPROGRAMFILES(X86) = C:\Program Files (x86)\Common Files
 # environment
-PROMPT = $P$G
+HOMESHARE = \\ABT-SBS\UserShares\RytisL
 # environment
 MFLAGS = -pqrRw
 # automatic
@@ -186,9 +191,9 @@ SYSTEMROOT = C:\WINDOWS
 # automatic
 +F = $(notdir $+)
 # environment
-APPDATA = C:\Users\Rycius\AppData\Roaming
+APPDATA = C:\Users\rytisl\AppData\Roaming
 # environment
-TEMP = C:\Users\Rycius\AppData\Local\Temp
+TEMP = C:\Users\rytisl\AppData\Local\Temp
 # environment
 COMSPEC = C:\WINDOWS\system32\cmd.exe
 # makefile (from 'Makefile', line 36)
@@ -207,6 +212,8 @@ PROJECT_NAME = game
 LC_ALL = C
 # automatic
 ^F = $(notdir $^)
+# environment
+ORX = C:\Users\rytisl\Downloads\orx-master\code
 # default
 SUFFIXES := 
 # environment
@@ -214,21 +221,23 @@ SYSTEMDRIVE = C:
 # environment
 SESSIONNAME = Console
 # environment
-PROCESSOR_REVISION = 5e03
+PROCESSOR_REVISION = 3a09
 # makefile (from 'Makefile', line 39)
 RAYLIB_LIBTYPE = STATIC
 # default
 .RECIPEPREFIX := 
+# makefile (from 'Makefile', line 110)
+OBJ_DIR = obj
 # environment
 LANG = C
 # environment
 PROCESSOR_LEVEL = 6
 # environment
-VSCODE_PID = 21536
+VSCODE_PID = 11160
 # environment
-USERDOMAIN_ROAMINGPROFILE = DESKTOP-I2VGV5B
+USERDOMAIN_ROAMINGPROFILE = ABTPRODUCTS
 # variable set hash-table stats:
-# Load=107/1024=10%, Rehash=0, Collisions=20/155=13%
+# Load=110/1024=11%, Rehash=0, Collisions=23/158=15%
 
 # Pattern-specific Variable Values
 
@@ -236,8 +245,8 @@ USERDOMAIN_ROAMINGPROFILE = DESKTOP-I2VGV5B
 
 # Directories
 
-# . (key c:/Users/Rycius/Documents/Projects/hexfun, mtime 1661203769ll): 12 files, no impossibilities.
-# src (key c:/Users/Rycius/Documents/Projects/hexfun/src, mtime 1661086851ll): No files, no impossibilities so far.
+# . (key c:/Users/rytisl/Documents/Raylib/hexfun, mtime 1661239106ll): 12 files, no impossibilities.
+# src (key c:/Users/rytisl/Documents/Raylib/hexfun/src, mtime 1661239106ll): No files, no impossibilities so far.
 
 # 12 files, no impossibilities in 2 directories.
 
@@ -267,7 +276,7 @@ all:
 # Not a target:
 Makefile:
 #  Implicit rule search has been done.
-#  Last modified 2022-08-19 14:30:38
+#  Last modified 2022-08-23 08:18:26
 #  File has been updated.
 #  Successfully updated.
 
@@ -314,12 +323,10 @@ game: main.cpp
 # strcache performance: lookups = 32 / hit rate = 34%
 # hash-table stats:
 # Load=21/8192=0%, Rehash=0, Collisions=1/32=3%
-# Finished Make data base on Mon Aug 22 23:29:58 2022
+# Finished Make data base on Tue Aug 23 08:18:40 2022
 
-# make[1]: Leaving directory 'c:/Users/Rycius/Documents/Projects/hexfun'
+# make[1]: Leaving directory 'c:/Users/rytisl/Documents/Raylib/hexfun'
  
-make[1]: *** No rule to make target 'main.cpp', needed by 'game'.  Stop.
-
 make.exe: *** [Makefile:123: all] Error 2
 
 # GNU Make 4.2
@@ -329,7 +336,7 @@ make.exe: *** [Makefile:123: all] Error 2
 # This is free software: you are free to change and redistribute it.
 # There is NO WARRANTY, to the extent permitted by law.
 
-# Make data base, printed on Mon Aug 22 23:29:58 2022
+# Make data base, printed on Tue Aug 23 08:18:40 2022
 
 # Variables
 
@@ -354,7 +361,7 @@ RAYLIB_VERSION = 4.0.0
 # automatic
 @D = $(patsubst %/,%,$(patsubst %\,%,$(dir $@)))
 # environment
-HOMEDRIVE = C:
+HOMEDRIVE = U:
 # automatic
 @F = $(notdir $@)
 # makefile (from 'Makefile', line 100)
@@ -362,7 +369,7 @@ LDLIBS = -lraylib -lopengl32 -lgdi32 -lwinmm
 # automatic
 ^D = $(patsubst %/,%,$(patsubst %\,%,$(dir $^)))
 # makefile
-CURDIR := c:/Users/Rycius/Documents/Projects/hexfun
+CURDIR := c:/Users/rytisl/Documents/Raylib/hexfun
 # default
 SHELL := C:/raylib/w64devkit/bin/sh.exe
 # environment
@@ -372,15 +379,15 @@ VSCODE_NLS_CONFIG = {"locale":"en-us","availableLanguages":{},"_languagePackSupp
 # makefile (from 'Makefile', line 82)
 CFLAGS = -Wall -std=c++11 -D_DEFAULT_SOURCE -Wno-missing-braces -g -O0 -Wno-narrowing -Wno-sign-compare -Wno-enum-compare $(RAYLIB_PATH)/src/raylib.rc.data
 # environment
-ONEDRIVE = C:\Users\Rycius\OneDrive
+ONEDRIVE = C:\Users\rytisl\OneDrive
 # environment
 PATHEXT = .COM;.EXE;.BAT;.CMD;.VBS;.VBE;.JS;.JSE;.WSF;.WSH;.MSC
 # makefile (from 'Makefile', line 1)
 MAKEFILE_LIST :=  Makefile
 # environment
-TMP = C:\Users\Rycius\AppData\Local\Temp
-# makefile (from 'Makefile', line 110)
-OBJ_DIR = obj
+TMP = C:\Users\rytisl\AppData\Local\Temp
+# environment
+PROMPT = $P$G
 # makefile (from 'Makefile', line 42)
 BUILD_MODE = DEBUG
 # environment
@@ -390,11 +397,11 @@ OBJS = main.cpp
 # environment
 PROGRAMDATA = C:\ProgramData
 # environment
-VSCODE_CWD = C:\Users\Rycius\Documents\Projects\hexfun
+VSCODE_CWD = C:\Users\rytisl\Documents\Raylib\hexfun
 # default
 MAKE_HOST := i686-w64-mingw32
 # makefile (from 'Makefile', line 45)
-PATH := C:/raylib/w64devkit/bin;C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0\;C:\Program Files\Intel\WiFi\bin\;C:\Program Files\Common Files\Intel\WirelessCommon\;C:\WINDOWS\system32;C:\WINDOWS;C:\WINDOWS\System32\Wbem;C:\WINDOWS\System32\WindowsPowerShell\v1.0\;C:\WINDOWS\System32\OpenSSH\;C:\Program Files\dotnet\;C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\;C:\Users\Rycius\Downloads\Odin-dev-2022-04;C:\Program Files\Git\cmd;C:\Program Files (x86)\NVIDIA Corporation\PhysX\Common;C:\Users\Rycius\AppData\Local\Programs\Python\Python37\Scripts\;C:\Users\Rycius\AppData\Local\Programs\Python\Python37\;C:\Users\Rycius\AppData\Local\Programs\Python\Launcher\;C:\Users\Rycius\AppData\Local\Microsoft\WindowsApps;C:\Program Files\Intel\WiFi\bin\;C:\Program Files\Common Files\Intel\WirelessCommon\;C:\Users\Rycius\.dotnet\tools;C:\Users\Rycius\AppData\Local\Programs\Microsoft VS Code\bin;C:\raylib\w64devkit\bin;
+PATH := C:/raylib/w64devkit/bin;C:\WINDOWS\system32;C:\WINDOWS;C:\WINDOWS\System32\Wbem;C:\WINDOWS\System32\WindowsPowerShell\v1.0\;C:\WINDOWS\System32\OpenSSH\;C:\Program Files (x86)\ATI Technologies\ATI.ACE\Core-Static;C:\Program Files (x86)\AMD\ATI.ACE\Core-Static;C:\Program Files\dotnet\;C:\Users\rytisl\AppData\Local\Microsoft\WindowsApps;C:\Users\rytisl\AppData\Local\Programs\Microsoft VS Code\bin;C:\raylib\w64devkit\bin;C:\Program Files\CMake\bin;C:\Users\rytisl\.dotnet\tools;C:\Program Files\Mono\bin;C:\Program Files\dotnet;C:\Program Files (x86)\MSBuild\12.0\Bin;C:\Program Files (x86)\MSBuild;;C:\Program Files\Radan Software\Radan\bin;C:\Program Files\Radan Software\Radan\nt\x64\bin;C:\Program Files\Radan Software\Radan\nt\i386\bin
 # environment
 COMMONPROGRAMW6432 = C:\Program Files\Common Files
 # makefile (from 'Makefile', line 29)
@@ -402,7 +409,7 @@ RAYLIB_PATH = C:\raylib\raylib
 # environment
 PROCESSOR_ARCHITECTURE = x86
 # environment
-USERPROFILE = C:\Users\Rycius
+USERPROFILE = C:\Users\rytisl
 # environment
 ALLUSERSPROFILE = C:\ProgramData
 # environment
@@ -418,41 +425,43 @@ LDFLAGS = -L. -L$(RAYLIB_RELEASE_PATH) -L$(RAYLIB_PATH)/src
 # automatic
 %F = $(notdir $%)
 # environment
-CHROME_CRASHPAD_PIPE_NAME = \\.\pipe\crashpad_21536_PGNGCICZLCGIXLQF
+CHROME_CRASHPAD_PIPE_NAME = \\.\pipe\crashpad_11160_FADTGGQQHVFARLVX
 # makefile (from 'Makefile', line 44)
 PLATFORM_OS = WINDOWS
 # environment
-COMPUTERNAME = DESKTOP-I2VGV5B
+COMPUTERNAME = EASKTP13773DW
 # environment
 PROGRAMFILES = C:\Program Files (x86)
 # default
 .LOADED := 
 # environment
+USERDNSDOMAIN = ABTPRODUCTS.LOCAL
+# environment
 DRIVERDATA = C:\Windows\System32\Drivers\DriverData
 # environment
 ORIGINAL_XDG_CURRENT_DESKTOP = undefined
 # environment
-USERNAME = Rycius
+USERNAME = RytisL
 # environment
 PUBLIC = C:\Users\Public
 # environment
 VSCODE_AMD_ENTRYPOINT = vs/workbench/api/node/extensionHostProcess
 # environment
-VSCODE_CODE_CACHE_PATH = C:\Users\Rycius\AppData\Roaming\Code\CachedData\e4503b30fc78200f846c62cf8091b76ff5547662
+VSCODE_CODE_CACHE_PATH = C:\Users\rytisl\AppData\Roaming\Code\CachedData\e4503b30fc78200f846c62cf8091b76ff5547662
 # environment
 APPLICATION_INSIGHTS_NO_DIAGNOSTIC_CHANNEL = true
 # environment
 COMMONPROGRAMFILES = C:\Program Files (x86)\Common Files
 # environment
-LOGONSERVER = \\DESKTOP-I2VGV5B
+LOGONSERVER = \\ABT-SBS
 # makefile (from 'Makefile', line 117)
 MAKEFILE_PARAMS = $(PROJECT_NAME)
 # environment
-ONEDRIVECONSUMER = C:\Users\Rycius\OneDrive
+ONEDRIVECONSUMER = C:\Users\rytisl\OneDrive
 # environment
 VSCODE_HANDLES_UNCAUGHT_ERRORS = true
 # environment
-USERDOMAIN = DESKTOP-I2VGV5B
+USERDOMAIN = ABTPRODUCTS
 # environment
 MAKELEVEL := 0
 # makefile (from 'Makefile', line 58)
@@ -470,7 +479,7 @@ PROGRAMFILES(X86) = C:\Program Files (x86)
 # automatic
 %D = $(patsubst %/,%,$(patsubst %\,%,$(dir $%)))
 # environment
-LOCALAPPDATA = C:\Users\Rycius\AppData\Local
+LOCALAPPDATA = C:\Users\rytisl\AppData\Local
 # environment
 PSMODULEPATH = C:\Program Files\WindowsPowerShell\Modules;C:\WINDOWS\system32\WindowsPowerShell\v1.0\Modules
 # makefile (from 'Makefile', line 106)
@@ -484,17 +493,17 @@ PROCESSOR_ARCHITEW6432 = AMD64
 # automatic
 *F = $(notdir $*)
 # environment
-PROCESSOR_IDENTIFIER = Intel64 Family 6 Model 94 Stepping 3, GenuineIntel
+PROCESSOR_IDENTIFIER = Intel64 Family 6 Model 58 Stepping 9, GenuineIntel
 # environment
 OS = Windows_NT
 # environment
-VSCODE_IPC_HOOK = \\.\pipe\64e1c3bde2055cef164067eb0ecd517b-1.70.2-main-sock
+VSCODE_IPC_HOOK = \\.\pipe\da44601d0c782ba16105533545ffd455-1.70.2-main-sock
 # environment
-HOMEPATH = \Users\Rycius
+HOMEPATH = \
 # environment
 COMMONPROGRAMFILES(X86) = C:\Program Files (x86)\Common Files
 # environment
-PROMPT = $P$G
+HOMESHARE = \\ABT-SBS\UserShares\RytisL
 # environment
 MFLAGS = -pqrR
 # automatic
@@ -506,9 +515,9 @@ SYSTEMROOT = C:\WINDOWS
 # automatic
 +F = $(notdir $+)
 # environment
-APPDATA = C:\Users\Rycius\AppData\Roaming
+APPDATA = C:\Users\rytisl\AppData\Roaming
 # environment
-TEMP = C:\Users\Rycius\AppData\Local\Temp
+TEMP = C:\Users\rytisl\AppData\Local\Temp
 # environment
 COMSPEC = C:\WINDOWS\system32\cmd.exe
 # makefile (from 'Makefile', line 36)
@@ -527,6 +536,8 @@ PROJECT_NAME = game
 LC_ALL = C
 # automatic
 ^F = $(notdir $^)
+# environment
+ORX = C:\Users\rytisl\Downloads\orx-master\code
 # default
 SUFFIXES := 
 # environment
@@ -534,21 +545,23 @@ SYSTEMDRIVE = C:
 # environment
 SESSIONNAME = Console
 # environment
-PROCESSOR_REVISION = 5e03
+PROCESSOR_REVISION = 3a09
 # makefile (from 'Makefile', line 39)
 RAYLIB_LIBTYPE = STATIC
 # default
 .RECIPEPREFIX := 
+# makefile (from 'Makefile', line 110)
+OBJ_DIR = obj
 # environment
 LANG = C
 # environment
 PROCESSOR_LEVEL = 6
 # environment
-VSCODE_PID = 21536
+VSCODE_PID = 11160
 # environment
-USERDOMAIN_ROAMINGPROFILE = DESKTOP-I2VGV5B
+USERDOMAIN_ROAMINGPROFILE = ABTPRODUCTS
 # variable set hash-table stats:
-# Load=107/1024=10%, Rehash=0, Collisions=18/159=11%
+# Load=110/1024=11%, Rehash=0, Collisions=21/162=13%
 
 # Pattern-specific Variable Values
 
@@ -556,8 +569,8 @@ USERDOMAIN_ROAMINGPROFILE = DESKTOP-I2VGV5B
 
 # Directories
 
-# . (key c:/Users/Rycius/Documents/Projects/hexfun, mtime 1661203769ll): 12 files, no impossibilities.
-# src (key c:/Users/Rycius/Documents/Projects/hexfun/src, mtime 1661086851ll): No files, no impossibilities so far.
+# . (key c:/Users/rytisl/Documents/Raylib/hexfun, mtime 1661239106ll): 12 files, no impossibilities.
+# src (key c:/Users/rytisl/Documents/Raylib/hexfun/src, mtime 1661239106ll): No files, no impossibilities so far.
 
 # 12 files, no impossibilities in 2 directories.
 
@@ -614,7 +627,7 @@ all:
 # Not a target:
 Makefile:
 #  Implicit rule search has been done.
-#  Last modified 2022-08-19 14:30:38
+#  Last modified 2022-08-23 08:18:26
 #  File has been updated.
 #  Successfully updated.
 
@@ -660,6 +673,6 @@ game: main.cpp
 # strcache performance: lookups = 33 / hit rate = 36%
 # hash-table stats:
 # Load=21/8192=0%, Rehash=0, Collisions=1/33=3%
-# Finished Make data base on Mon Aug 22 23:29:58 2022
+# Finished Make data base on Tue Aug 23 08:18:40 2022
 
  
