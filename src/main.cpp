@@ -260,77 +260,58 @@ map_tile *GetMapTile(map_tile *map, int32 mapWidth, int32 mapHeight, offset_coor
     return result;
 }
 
+int32 AxialDistance(axial_coord a, axial_coord b)
+{
+    int32 result = 0.0f;
+
+    result = (abs(a.q - b.q) + abs(a.q + a.r - b.q - b.r) + abs(a.r - b.r)) / 2;
+
+    return result;
+}
+    
+int32 OffsetDistance(offset_coord a, offset_coord b)
+{
+    int32 result = 0.0f;
+
+    axial_coord ax = OffsetToAxial(a);
+    axial_coord bx = OffsetToAxial(b);
+    result = AxialDistance(ax, bx);
+
+    return result;
+}
+
 float Heuristic(offset_coord a, offset_coord b)
 {
-    float result = 0;
+    float result = 0.0f;
 
-    result = abs(a.col - b.col) + abs(a.row - b.row);
+    result = OffsetDistance(a, b);
 
     return result;
 }
 
 
-
-
 offset_coord *FindPath(map_tile *map, int32 mapWidth, int32 mapHeight, offset_coord start, offset_coord end)
 {
-    offset_coord *result = 0;
+    offset_coord *result;
 
-    offset_coord *frontier = 0;
-    arrsetcap(frontier, mapWidth*mapHeight);
-    arrput(frontier, start);
+    map_tile *endTile = GetMapTile(map, mapWidth, mapHeight, end);
 
-    offset_coord cameFrom[mapWidth*mapHeight] = {0};
+    map_tile **frontier = 0;
+    arrput(frontier, GetMapTile(map, mapWidth, mapHeight, start));
 
-    float costSoFar[mapWidth*mapHeight] = {-1.0f};
-
-    for(int32 i = 0; i < mapWidth*mapHeight; i++)
-    {
-        costSoFar[i] = -1.0f;
-        cameFrom[i] = Offset(0, 0);
-    }
-    costSoFar[ArrAddrFromOffset(start, mapWidth, mapHeight)] = 0;
+    map_tile *cameFrom[mapWidth*mapHeight] = {0};
+    
+    float costSoFarVal[mapWidth*mapHeight] = {0};
+    map_tile *costSoFar[mapWidth*mapHeight] = {0};
 
     while(arrlen(frontier) > 0)
     {
-        offset_coord current = frontier[0];
-        arrdel(frontier, 0);
+        map_tile *current = arrpop(frontier);
 
-        if(current.col == end.col && current.row == end.row) 
-            break;
+        if(current->offset.col == endTile->offset.col && current->offset.row == endTile->offset.row) break;
 
-        offset_coord *neighbors = OffsetNeighbors(current);
-        for(int32 i = 0; i < arrlen(neighbors); i++)
-        {
-            offset_coord next = neighbors[i];
-            if(next.row < 0 || next.row > mapHeight - 1) continue;
-
-            float newCost = costSoFar[ArrAddrFromOffset(current, mapWidth, mapHeight)] + 1; // + MoveCost(current, next)
-
-            if(costSoFar[ArrAddrFromOffset(next, mapWidth, mapHeight)] < -0.5f || newCost < costSoFar[ArrAddrFromOffset(next, mapWidth, mapHeight)])
-            {
-                costSoFar[ArrAddrFromOffset(next, mapWidth, mapHeight)] = newCost;
-                arrput(frontier, next);
-                cameFrom[ArrAddrFromOffset(next, mapWidth, mapHeight)] = current;
-            }
-        }
-
-        if(neighbors)
-            arrfree(neighbors);
+        offset_coord *neighboors = OffsetNeighbors(current->offset);
     }
-    
-    arrput(result, end);
-    offset_coord current = cameFrom[ArrAddrFromOffset(end, mapWidth, mapHeight)];
-
-    while(current.col != start.col && current.row != start.row)
-    {
-        arrput(result, current);
-        uint32 addr = ArrAddrFromOffset(current, mapWidth, mapHeight);
-        current = cameFrom[addr];
-    }
-
-    if(frontier)
-        arrfree(frontier);
 
     return result;
 }
