@@ -79,7 +79,7 @@ inline offset_coord CubeToOffset(cube_coord cube)
     return result;
 }
 
-inline cube_coord offset_coordToCube(offset_coord o)
+inline cube_coord OffsetToCube(offset_coord o)
 {
     cube_coord result = {0};
 
@@ -260,9 +260,19 @@ map_tile *GetMapTile(map_tile *map, int32 mapWidth, int32 mapHeight, offset_coor
     return result;
 }
 
+int32 CubeDistance (cube_coord a, cube_coord b)
+{
+    int32 result = 0;
+
+    result = (abs(a.q - b.q) + abs(a.r - b.r) + abs(a.s - b.s)) / 2;
+
+    return result;
+    
+}
+
 int32 AxialDistance(axial_coord a, axial_coord b)
 {
-    int32 result = 0.0f;
+    int32 result = 0;
 
     result = (abs(a.q - b.q) + abs(a.q + a.r - b.q - b.r) + abs(a.r - b.r)) / 2;
 
@@ -271,7 +281,7 @@ int32 AxialDistance(axial_coord a, axial_coord b)
     
 int32 OffsetDistance(offset_coord a, offset_coord b)
 {
-    int32 result = 0.0f;
+    int32 result = 0;    
 
     axial_coord ax = OffsetToAxial(a);
     axial_coord bx = OffsetToAxial(b);
@@ -289,29 +299,168 @@ float Heuristic(offset_coord a, offset_coord b)
     return result;
 }
 
+struct path_node
+{
+    offset_coord offset;
+    float f;
+    float g;
+    float h;
+    path_node *cameFrom;
+    map_tile *tile;
+};
+
+void GetLowestF(path_node *list, path_node node)
+{
+    for(int32 i = 0; i < arrlen(list); i++)
+    {
+        if(node.f > list[i].f)
+        {
+            arrins(list, i, node);
+            return;
+        }
+    } 
+
+    arrpush(list, node);
+}
+
+int32 ListContains(path_node *list, path_node node)
+{
+    int32 result = -1;
+
+    for(int32 i = 0; i < arrlen(list); i++)
+    {
+        if(list[i].offset.col == node.offset.col && list[i].offset.row == node.offset.row)
+        {
+            result = i;
+            break;
+        }
+    }
+
+    return result;
+}
+
 
 offset_coord *FindPath(map_tile *map, int32 mapWidth, int32 mapHeight, offset_coord start, offset_coord end)
 {
-    offset_coord *result;
+    offset_coord *result = 0;
 
+    path_node *pnList = 0;
+    arrsetcap(pnList, mapWidth*mapHeight);
+
+    path_node **openlist = 0;
+    arrsetcap(openlist, mapWidth*mapHeight);
+
+    path_node **closedList = 0;
+    arrsetcap(closedList, mapWidth*mapHeight);
+
+    map_tile *startTile = GetMapTile(map, mapWidth, mapHeight, start);
     map_tile *endTile = GetMapTile(map, mapWidth, mapHeight, end);
 
-    map_tile **frontier = 0;
-    arrput(frontier, GetMapTile(map, mapWidth, mapHeight, start));
-
-    map_tile *cameFrom[mapWidth*mapHeight] = {0};
+    path_node node = {0};
+    node.offset = start;
+    node.tile = startTile;
     
-    float costSoFarVal[mapWidth*mapHeight] = {0};
-    map_tile *costSoFar[mapWidth*mapHeight] = {0};
+    arrpush(pnList, node);
+    arrpush(openlist, &pnList[arrlen(pnList)-1]);
+    
+    path_node *currNode = 0;
 
-    while(arrlen(frontier) > 0)
+    while(hmlen(openlist) > 0)
     {
-        map_tile *current = arrpop(frontier);
+        float lowestF = __FLT_MAX__;
+        int32 lowestFID = -1;
+        for(int32 i = 0; i < arrlen(openlist); i++)
+        {
+            if(openlist[i]->f < lowestF) 
+            {
+                currNode = openlist[i];
+                lowestFID = i;
+            }
+        }
 
-        if(current->offset.col == endTile->offset.col && current->offset.row == endTile->offset.row) break;
+        map_tile *currTile = GetMapTile(map, mapWidth, mapHeight, currNode->offset);
+        arrdel(openlist, lowestFID);
+        arrpush(closedList, currNode);
 
-        offset_coord *neighboors = OffsetNeighbors(current->offset);
+        if(currNode->offset.col == end.col && currNode->offset.row == end.row)
+        {
+            while(currNode->offset.col != start.col && currNode->offset.row != start.row)
+            {
+                arrpush(result, currNode->offset);
+                currNode = hmget(closedList, currTile);
+                currTile = GetMapTile(map, mapWidth, mapHeight, currNode->offset);
+            }
+
+            break;
+        }
+
+        offset_coord *neighborsOffsets = OffsetNeighbors(currNode->offset);
+
+        for(int32 i = 0; i < arrlen(neighborsOffsets); i++)
+        {
+            map_tile *neighborTile = GetMapTile(map, mapWidth, mapHeight, neighborsOffsets[i]);
+             
+            if(neighborTile == 0) continue;
+            
+            bool inClosedList = false;
+            for(int32 i = 0; i < arrlen(closedList); i++)
+            {
+                if(closedList[i]->tile->offset.col == neighborTile->offset.col && closedList[i]->tile->offset.row == neighborTile->offset.row)
+                {
+                    inClosedList = true;
+                    break;
+                }
+            }
+            if(inClosedList) continue;
+
+            bool inOpenList = false;
+
+            for(int32 i = 0; i < arrlen(openlist); i++)
+            {
+                if(openlist[i]->tile->offset.col == neighborTile->offset.col && openlist[i]->tile->offset.row == neighborTile->offset.row)
+                {
+                    inOpenList = true;
+                    break;
+                }
+            }
+
+            if(inOpenList == false)
+            {
+                path_node neighborNode = {0};
+                neighborNode.offset = neighborsOffsets[i];
+                neighborNode.cameFrom = currNode;
+                neighborNode.g = currNode->g + 1.0f; // cost to move from tile to other tile
+                neighborNode.h = OffsetDistance(neighborNode.offset, end);
+                neighborNode.f = neighborNode.g + neighborNode.h;
+
+                arrput(pnList, neighborNode);
+                arrput(openlist, &pnList[arrlen(pnList-1)]);
+            }
+            else
+            {
+                if((currNode->g + neigh->moveCost) < n->g)
+                {
+                    n->parent = node;
+                    n->g = node->g + n->moveCost;
+                    n->f = n->g + n->h;
+                }
+            }
+
+            
+            
+            auto neighborInOpen = hmgetp_null(openlist, neighborTile);
+            if(neighborInOpen != 0)
+            {
+                if(neighborNode.g > neighborInOpen->value->g)
+                    continue;
+            }
+
+            arrpush(pnList, neighborNode);
+            hmput(openlist, neighborTile, &pnList[arrlen(pnList)-1]);
+        }
     }
+
+
 
     return result;
 }
