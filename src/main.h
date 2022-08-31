@@ -5,7 +5,6 @@
 
 #include "stb_ds.h"
 
-
 #define int8   int8_t
 #define uint8  uint8_t
 #define int16  int16_t
@@ -29,6 +28,21 @@
 #endif
 
 #define ArrayCount(Array) (sizeof(Array) / sizeof((Array)[0]))
+
+
+
+
+#define SQRT3 1.73205080757f
+#define HEX_SIZE 40.0f
+#define HEX_HEIGHT (HEX_SIZE * 2.0f)
+#define HEX_WIDTH (SQRT3 * HEX_SIZE)
+#define HEX_CENTRE_DIST_VERT (0.75f * HEX_HEIGHT)
+#define HEX_CENTRE_DIST_HOR HEX_WIDTH
+
+#define HEX_TEXTURE_SIZE 512
+#define HEX_TEXTURE_HEX_SIZE (HEX_TEXTURE_SIZE / 2)
+
+
 
 inline v2 Vec2()
 {
@@ -75,6 +89,22 @@ inline int Clamp(int value, int min, int max)
 
 enum direction {DIR_EAST, DIR_NORTH_EAST, DIR_NORTH_WEST, DIR_WEST, DIR_SOUTH_WEST, DIR_SOUTH_EAST, DIR_COUNT};
 
+
+
+struct offset_coord
+{
+    int32 col;
+    int32 row;
+};
+
+
+struct map_tile
+{
+    offset_coord offset;
+    Texture texture;
+    Color overlayColor;
+};
+
 struct cube_coord
 {
     int32 q;
@@ -88,26 +118,12 @@ struct axial_coord
     int32 r;
 };
 
-struct offset_coord
-{
-    int32 col;
-    int32 row;
-};
-
-struct map_tile
+struct path_node
 {
     offset_coord offset;
-    Texture texture;
-    Color overlayColor;
+    float f;
+    float g;
+    float h;
+    path_node *cameFrom;
+    map_tile *tile;
 };
-
-
-inline offset_coord Offset(int32 c, int32 r)
-{
-    offset_coord result = {0};
-
-    result.col = c;
-    result.row = r;
-
-    return result;
-}

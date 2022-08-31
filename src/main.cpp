@@ -5,15 +5,15 @@
 #include "gui.cpp"
 
 
-#define SQRT3 1.73205080757f
-#define HEX_SIZE 40.0f
-#define HEX_HEIGHT (HEX_SIZE * 2.0f)
-#define HEX_WIDTH (SQRT3 * HEX_SIZE)
-#define HEX_CENTRE_DIST_VERT (0.75f * HEX_HEIGHT)
-#define HEX_CENTRE_DIST_HOR HEX_WIDTH
+inline offset_coord Offset(int32 c, int32 r)
+{
+    offset_coord result = {0};
 
-#define HEX_TEXTURE_SIZE 512
-#define HEX_TEXTURE_HEX_SIZE (HEX_TEXTURE_SIZE / 2)
+    result.col = c;
+    result.row = r;
+
+    return result;
+}
 
 v2 PointyHexCorner(v2 center, float size, int32 i)
 {
@@ -27,6 +27,46 @@ v2 PointyHexCorner(v2 center, float size, int32 i)
 
     return result;
 }
+
+
+
+bool IsOnScreen(v2 pos, v2 dim, Camera2D camera)
+{
+    bool result = false;
+
+    v2 zoomDim = Vector2Scale(dim, camera.zoom);
+    v2 screenPos = GetWorldToScreen2D(pos, camera);
+    Rectangle screenRec = Rec(screenPos.x - zoomDim.x/2, screenPos.y - zoomDim.y/2, zoomDim.x, zoomDim.y);
+    
+    result = CheckCollisionRecs(screenRec, Rec(0, 0, GetScreenWidth(), GetScreenHeight()));
+
+    return result;
+}
+
+map_tile *GetMapTile(map_tile *map, int32 mapWidth, int32 mapHeight, offset_coord offset)
+{
+    map_tile *result = 0;
+
+    if(offset.row < 0 || offset.row > mapHeight - 1) return 0;
+
+
+    uint32 address = offset.row * mapWidth;
+    if(offset.col < 0)
+    {
+        int32 mod = offset.col % mapWidth;
+        if(mod < 0)
+            address += mapWidth + offset.col % mapWidth;
+        else
+            address += offset.col % mapWidth;   
+    } 
+    else
+        address += offset.col % mapWidth;
+
+    result = &map[address];
+
+    return result;
+}
+
 
 inline axial_coord CubeToAxial(cube_coord cube)
 {
@@ -165,18 +205,8 @@ inline v2 OffsetToScreen(offset_coord o)
     return result;
 }
 
-bool IsOnScreen(v2 pos, v2 dim, Camera2D camera)
-{
-    bool result = false;
 
-    v2 zoomDim = Vector2Scale(dim, camera.zoom);
-    v2 screenPos = GetWorldToScreen2D(pos, camera);
-    Rectangle screenRec = Rec(screenPos.x - zoomDim.x/2, screenPos.y - zoomDim.y/2, zoomDim.x, zoomDim.y);
-    
-    result = CheckCollisionRecs(screenRec, Rec(0, 0, GetScreenWidth(), GetScreenHeight()));
 
-    return result;
-}
 
 offset_coord OffsetNeighbor(offset_coord offset, direction dir)
 {
@@ -213,56 +243,9 @@ offset_coord *OffsetNeighbors(offset_coord offset)
     return result;
 }
 
-uint32 ArrAddrFromOffset(offset_coord offset, int32 mapWidth, int32 mapHeight)
+float CubeDistance (cube_coord a, cube_coord b)
 {
-    uint32 result = 0;
-
-    if(offset.row >= 0 || offset.row < mapHeight)
-    {
-        result = offset.row * mapWidth;
-        
-        if(offset.col < 0)
-        {
-            int32 mod = offset.col % mapWidth;
-            if(mod < 0)
-                result += mapWidth + offset.col % mapWidth;
-            else
-                result += offset.col % mapWidth;   
-        } 
-        else
-            result += offset.col % mapWidth;
-    }
-
-    return result;
-}
-
-map_tile *GetMapTile(map_tile *map, int32 mapWidth, int32 mapHeight, offset_coord offset)
-{
-    map_tile *result = 0;
-
-    if(offset.row < 0 || offset.row > mapHeight - 1) return 0;
-
-
-    uint32 address = offset.row * mapWidth;
-    if(offset.col < 0)
-    {
-        int32 mod = offset.col % mapWidth;
-        if(mod < 0)
-            address += mapWidth + offset.col % mapWidth;
-        else
-            address += offset.col % mapWidth;   
-    } 
-    else
-        address += offset.col % mapWidth;
-
-    result = &map[address];
-
-    return result;
-}
-
-int32 CubeDistance (cube_coord a, cube_coord b)
-{
-    int32 result = 0;
+    float result = 0;
 
     result = (abs(a.q - b.q) + abs(a.r - b.r) + abs(a.s - b.s)) / 2;
 
@@ -270,18 +253,18 @@ int32 CubeDistance (cube_coord a, cube_coord b)
     
 }
 
-int32 AxialDistance(axial_coord a, axial_coord b)
+float AxialDistance(axial_coord a, axial_coord b)
 {
-    int32 result = 0;
+    float result = 0;
 
     result = (abs(a.q - b.q) + abs(a.q + a.r - b.q - b.r) + abs(a.r - b.r)) / 2;
 
     return result;
 }
     
-int32 OffsetDistance(offset_coord a, offset_coord b)
+float OffsetDistance(offset_coord a, offset_coord b)
 {
-    int32 result = 0;    
+    float result = 0;    
 
     axial_coord ax = OffsetToAxial(a);
     axial_coord bx = OffsetToAxial(b);
@@ -298,47 +281,6 @@ float Heuristic(offset_coord a, offset_coord b)
 
     return result;
 }
-
-struct path_node
-{
-    offset_coord offset;
-    float f;
-    float g;
-    float h;
-    path_node *cameFrom;
-    map_tile *tile;
-};
-
-void GetLowestF(path_node *list, path_node node)
-{
-    for(int32 i = 0; i < arrlen(list); i++)
-    {
-        if(node.f > list[i].f)
-        {
-            arrins(list, i, node);
-            return;
-        }
-    } 
-
-    arrpush(list, node);
-}
-
-int32 ListContains(path_node *list, path_node node)
-{
-    int32 result = -1;
-
-    for(int32 i = 0; i < arrlen(list); i++)
-    {
-        if(list[i].offset.col == node.offset.col && list[i].offset.row == node.offset.row)
-        {
-            result = i;
-            break;
-        }
-    }
-
-    return result;
-}
-
 
 offset_coord *FindPath(map_tile *map, int32 mapWidth, int32 mapHeight, offset_coord start, offset_coord end)
 {
@@ -365,8 +307,14 @@ offset_coord *FindPath(map_tile *map, int32 mapWidth, int32 mapHeight, offset_co
     
     path_node *currNode = 0;
 
-    while(hmlen(openlist) > 0)
+    while(arrlen(openlist) > 0)
     {
+        // for(int32 i = 0; i < arrlen(openlist); i++)
+        // {
+        //     path_node *n = openlist[i];
+        //     TraceLog(LOG_INFO, "openlist x:%d, y:%d, g:%.2f, h:%.2f f:%.2f", n->tile->offset.col, n->tile->offset.row, n->g, n->h, n->f);
+        // }
+
         float lowestF = __FLT_MAX__;
         int32 lowestFID = -1;
         for(int32 i = 0; i < arrlen(openlist); i++)
@@ -374,21 +322,20 @@ offset_coord *FindPath(map_tile *map, int32 mapWidth, int32 mapHeight, offset_co
             if(openlist[i]->f < lowestF) 
             {
                 currNode = openlist[i];
+                lowestF = currNode->f;
                 lowestFID = i;
             }
         }
 
-        map_tile *currTile = GetMapTile(map, mapWidth, mapHeight, currNode->offset);
         arrdel(openlist, lowestFID);
         arrpush(closedList, currNode);
 
-        if(currNode->offset.col == end.col && currNode->offset.row == end.row)
+        if(currNode->tile == endTile)
         {
-            while(currNode->offset.col != start.col && currNode->offset.row != start.row)
+            while(currNode->tile != startTile)
             {
                 arrpush(result, currNode->offset);
-                currNode = hmget(closedList, currTile);
-                currTile = GetMapTile(map, mapWidth, mapHeight, currNode->offset);
+                currNode = currNode->cameFrom;
             }
 
             break;
@@ -398,6 +345,7 @@ offset_coord *FindPath(map_tile *map, int32 mapWidth, int32 mapHeight, offset_co
 
         for(int32 i = 0; i < arrlen(neighborsOffsets); i++)
         {
+            //TraceLog(LOG_INFO, "Neighbor x:%d, y:%d", neighborsOffsets[i].col, neighborsOffsets[i].row);
             map_tile *neighborTile = GetMapTile(map, mapWidth, mapHeight, neighborsOffsets[i]);
              
             if(neighborTile == 0) continue;
@@ -405,7 +353,7 @@ offset_coord *FindPath(map_tile *map, int32 mapWidth, int32 mapHeight, offset_co
             bool inClosedList = false;
             for(int32 i = 0; i < arrlen(closedList); i++)
             {
-                if(closedList[i]->tile->offset.col == neighborTile->offset.col && closedList[i]->tile->offset.row == neighborTile->offset.row)
+                if(closedList[i]->tile == neighborTile)
                 {
                     inClosedList = true;
                     break;
@@ -414,12 +362,14 @@ offset_coord *FindPath(map_tile *map, int32 mapWidth, int32 mapHeight, offset_co
             if(inClosedList) continue;
 
             bool inOpenList = false;
+            int32 openIndex = -1;
 
             for(int32 i = 0; i < arrlen(openlist); i++)
             {
-                if(openlist[i]->tile->offset.col == neighborTile->offset.col && openlist[i]->tile->offset.row == neighborTile->offset.row)
+                if(openlist[i]->tile == neighborTile)
                 {
                     inOpenList = true;
+                    openIndex = i;
                     break;
                 }
             }
@@ -429,34 +379,23 @@ offset_coord *FindPath(map_tile *map, int32 mapWidth, int32 mapHeight, offset_co
                 path_node neighborNode = {0};
                 neighborNode.offset = neighborsOffsets[i];
                 neighborNode.cameFrom = currNode;
-                neighborNode.g = currNode->g + 1.0f; // cost to move from tile to other tile
-                neighborNode.h = OffsetDistance(neighborNode.offset, end);
+                neighborNode.g = currNode->g + 1.0f; // +cost to move from tile to other tile
+                neighborNode.h = Heuristic(neighborNode.offset, end);
                 neighborNode.f = neighborNode.g + neighborNode.h;
+                neighborNode.tile = neighborTile;
 
                 arrput(pnList, neighborNode);
-                arrput(openlist, &pnList[arrlen(pnList-1)]);
+                arrput(openlist, &pnList[arrlen(pnList)-1]);
             }
             else
             {
-                if((currNode->g + neigh->moveCost) < n->g)
+                if((currNode->g + 1.0f) < openlist[openIndex]->g) // +cost to move from tile to other tile
                 {
-                    n->parent = node;
-                    n->g = node->g + n->moveCost;
-                    n->f = n->g + n->h;
+                    openlist[openIndex]->cameFrom = currNode;
+                    openlist[openIndex]->g = currNode->g + 1.0f; // // cost to move from tile to other tile
+                    openlist[openIndex]->f = openlist[openIndex]->g + openlist[openIndex]->h;
                 }
             }
-
-            
-            
-            auto neighborInOpen = hmgetp_null(openlist, neighborTile);
-            if(neighborInOpen != 0)
-            {
-                if(neighborNode.g > neighborInOpen->value->g)
-                    continue;
-            }
-
-            arrpush(pnList, neighborNode);
-            hmput(openlist, neighborTile, &pnList[arrlen(pnList)-1]);
         }
     }
 
@@ -464,6 +403,10 @@ offset_coord *FindPath(map_tile *map, int32 mapWidth, int32 mapHeight, offset_co
 
     return result;
 }
+
+
+
+
 
 int main() 
 {
@@ -654,9 +597,6 @@ int main()
                     //DrawPoly(center, 6, HEX_SIZE, 0.0f, tile->color);
                     DrawPolyLines(center, 6, HEX_SIZE, 0.0f, BLACK);
                     DrawText(str, center.x - 10, center.y, 10, BLACK);
-
-                    if(path && y == 47 && x == 63)
-                        int32 a = 0;
                 }
             }
 
