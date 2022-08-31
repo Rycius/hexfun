@@ -2,17 +2,17 @@ make.exe all --print-data-base --no-builtin-variables --no-builtin-rules --quest
 mingw32-make game
  
 # make[1]: Entering directory 'c:/Users/Rycius/Documents/Projects/hexfun'
+ 
+make[1]: *** No rule to make target 'main.cpp', needed by 'game'.  Stop.
+
 # GNU Make 4.2
 # Built for i686-w64-mingw32
 # Copyright (C) 1988-2016 Free Software Foundation, Inc.
 # License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>
 # This is free software: you are free to change and redistribute it.
 # There is NO WARRANTY, to the extent permitted by law.
- 
-make[1]: *** No rule to make target 'main.cpp', needed by 'game'.  Stop.
 
-
-# Make data base, printed on Wed Aug 31 20:38:45 2022
+# Make data base, printed on Wed Aug 31 22:38:08 2022
 
 # Variables
 
@@ -97,11 +97,12 @@ INCLUDE_PATHS = -I. -I$(RAYLIB_PATH)/src -I$(RAYLIB_PATH)/src/external -Isrc -Ii
 # makefile (from 'Makefile', line 92)
 LDFLAGS = -L. -L$(RAYLIB_RELEASE_PATH) -L$(RAYLIB_PATH)/src
 # default
-.FEATURES := target-specific order-only second-expansion else-if shortest-stem undefine oneshell archives jobserver output-sync
+.FEATURES := target-specific order-only second-expansion else-i 
+f shortest-stem undefine oneshell archives jobserver output-sync
 # automatic
 %F = $(notdir $%)
 # environment
-CHROME_CRASHPAD_PIPE_NAME = \\.\pipe\crashpad_1108_SFKUVRCYLMNFFZOQ
+CHROME_CRASHPAD_PIPE_NAME = \\.\pipe\crashpad_15736_PJJCLRITVNOUJDVX
 # makefile (from 'Makefile', line 44)
 PLATFORM_OS = WINDOWS
 # environment
@@ -123,7 +124,7 @@ VSCODE_AMD_ENTRYPOINT = vs/workbench/api/node/extensionHostProcess
 # environment
 VSCODE_CODE_CACHE_PATH = C:\Users\Rycius\AppData\Roaming\Code\CachedData\e4503b30fc78200f846c62cf8091b76ff5547662
 # environment
-APPLICATION_INSIGHTS_NO_DIAGNOSTIC_CHANNEL = true
+APPLICATION_INSIGHTS_NO_DIAGNOSTIC_CHANNEL = 1
 # environment
 COMMONPROGRAMFILES = C:\Program Files (x86)\Common Files
 # environment
@@ -227,7 +228,7 @@ LANG = C
 # environment
 PROCESSOR_LEVEL = 6
 # environment
-VSCODE_PID = 1108
+VSCODE_PID = 15736
 # environment
 USERDOMAIN_ROAMINGPROFILE = DESKTOP-I2VGV5B
 # variable set hash-table stats:
@@ -317,7 +318,7 @@ game: main.cpp
 # strcache performance: lookups = 32 / hit rate = 34%
 # hash-table stats:
 # Load=21/8192=0%, Rehash=0, Collisions=1/32=3%
-# Finished Make data base on Wed Aug 31 20:38:45 2022
+# Finished Make data base on Wed Aug 31 22:38:08 2022
 
 # make[1]: Leaving directory 'c:/Users/Rycius/Documents/Projects/hexfun'
  
@@ -331,7 +332,7 @@ make.exe: *** [Makefile:123: all] Error 2
 # There is NO WARRANTY, to the extent permitted by law.
  
 
-# Make data base, printed on Wed Aug 31 20:38:45 2022
+# Make data base, printed on Wed Aug 31 22:38:08 2022
 
 # Variables
 
@@ -352,7 +353,6 @@ MAKEFLAGS = pqrR
 # makefile (from 'Makefile', line 32)
 COMPILER_PATH = C:/raylib/w64devkit/bin
 # makefile (from 'Makefile', line 28)
- 
 RAYLIB_VERSION = 4.0.0
 # automatic
 @D = $(patsubst %/,%,$(patsubst %\,%,$(dir $@)))
@@ -421,7 +421,7 @@ LDFLAGS = -L. -L$(RAYLIB_RELEASE_PATH) -L$(RAYLIB_PATH)/src
 # automatic
 %F = $(notdir $%)
 # environment
-CHROME_CRASHPAD_PIPE_NAME = \\.\pipe\crashpad_1108_SFKUVRCYLMNFFZOQ
+CHROME_CRASHPAD_PIPE_NAME = \\.\pipe\crashpad_15736_PJJCLRITVNOUJDVX
 # makefile (from 'Makefile', line 44)
 PLATFORM_OS = WINDOWS
 # environment
@@ -437,13 +437,14 @@ ORIGINAL_XDG_CURRENT_DESKTOP = undefined
 # environment
 USERNAME = Rycius
 # environment
-PUBLIC = C:\Users\Public
+PUBLIC = C:\U 
+sers\Public
 # environment
 VSCODE_AMD_ENTRYPOINT = vs/workbench/api/node/extensionHostProcess
 # environment
 VSCODE_CODE_CACHE_PATH = C:\Users\Rycius\AppData\Roaming\Code\CachedData\e4503b30fc78200f846c62cf8091b76ff5547662
 # environment
-APPLICATION_INSIGHTS_NO_DIAGNOSTIC_CHANNEL = true
+APPLICATION_INSIGHTS_NO_DIAGNOSTIC_CHANNEL = 1
 # environment
 COMMONPROGRAMFILES = C:\Program Files (x86)\Common Files
 # environment
@@ -533,8 +534,7 @@ LC_ALL = C
 # default
 SUFFIXES := 
 # environment
-S 
-YSTEMDRIVE = C:
+SYSTEMDRIVE = C:
 # environment
 SESSIONNAME = Console
 # environment
@@ -548,7 +548,7 @@ LANG = C
 # environment
 PROCESSOR_LEVEL = 6
 # environment
-VSCODE_PID = 1108
+VSCODE_PID = 15736
 # environment
 USERDOMAIN_ROAMINGPROFILE = DESKTOP-I2VGV5B
 # variable set hash-table stats:
@@ -560,8 +560,7 @@ USERDOMAIN_ROAMINGPROFILE = DESKTOP-I2VGV5B
 
 # Directories
 
-# . ( 
-key c:/Users/Rycius/Documents/Projects/hexfun, mtime 1661551784ll): 12 files, no impossibilities.
+# . (key c:/Users/Rycius/Documents/Projects/hexfun, mtime 1661551784ll): 12 files, no impossibilities.
 # src (key c:/Users/Rycius/Documents/Projects/hexfun/src, mtime 1661613586ll): No files, no impossibilities so far.
 
 # 12 files, no impossibilities in 2 directories.
@@ -665,6 +664,6 @@ game: main.cpp
 # strcache performance: lookups = 33 / hit rate = 36%
 # hash-table stats:
 # Load=21/8192=0%, Rehash=0, Collisions=1/33=3%
-# Finished Make data base on Wed Aug 31 20:38:45 2022
+# Finished Make data base on Wed Aug 31 22:38:08 2022
 
  

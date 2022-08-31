@@ -98,11 +98,19 @@ struct offset_coord
 };
 
 
+struct game_unit
+{
+    offset_coord coord;
+    offset_coord *path;
+};
+
 struct map_tile
 {
     offset_coord offset;
     Texture texture;
     Color overlayColor;
+    game_unit *unit;
+    bool showPath;
 };
 
 struct cube_coord

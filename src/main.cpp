@@ -5,15 +5,7 @@
 #include "gui.cpp"
 
 
-inline offset_coord Offset(int32 c, int32 r)
-{
-    offset_coord result = {0};
 
-    result.col = c;
-    result.row = r;
-
-    return result;
-}
 
 v2 PointyHexCorner(v2 center, float size, int32 i)
 {
@@ -39,6 +31,16 @@ bool IsOnScreen(v2 pos, v2 dim, Camera2D camera)
     Rectangle screenRec = Rec(screenPos.x - zoomDim.x/2, screenPos.y - zoomDim.y/2, zoomDim.x, zoomDim.y);
     
     result = CheckCollisionRecs(screenRec, Rec(0, 0, GetScreenWidth(), GetScreenHeight()));
+
+    return result;
+}
+
+inline offset_coord Offset(int32 c, int32 r)
+{
+    offset_coord result = {0};
+
+    result.col = c;
+    result.row = r;
 
     return result;
 }
@@ -282,6 +284,7 @@ float Heuristic(offset_coord a, offset_coord b)
     return result;
 }
 
+/// BUG: 
 offset_coord *FindPath(map_tile *map, int32 mapWidth, int32 mapHeight, offset_coord start, offset_coord end)
 {
     offset_coord *result = 0;
@@ -397,9 +400,12 @@ offset_coord *FindPath(map_tile *map, int32 mapWidth, int32 mapHeight, offset_co
                 }
             }
         }
+        arrfree(neighborsOffsets);
     }
 
-
+    arrfree(pnList);
+    arrfree(openlist);
+    arrfree(closedList);
 
     return result;
 }
@@ -505,12 +511,22 @@ int main()
             else if(x == mapWidth - 1)
                 tile.overlayColor = RED;
 
+            if(x == 5 && y == 5)
+            {
+                tile.unit = (game_unit *)MemAlloc(sizeof(game_unit));
+                tile.unit->coord = tile.offset;
+            }
+
             arrput(map, tile);
         }
     }
 
-    offset_coord pathEnd = {0};
+    offset_coord offsetUnderMouse = {0};
 
+    game_unit *selectedUnit = 0;
+
+    offset_coord pathStart = {0};
+    offset_coord pathEnd = {0};
     offset_coord *path = 0;
 
     //--------------------------------------------------------------------------------------
@@ -519,6 +535,9 @@ int main()
     {
         // Update
         //----------------------------------------------------------------------------------
+
+        offsetUnderMouse = ScreenToOffset(GetScreenToWorld2D(GetMousePosition(), camera));
+   
         if(IsKeyPressed(KEY_F)) ToggleFullscreen();
         ///////////////////////////// CAMERA ZOOM /////////////////////////////////
         float wheel = GetMouseWheelMove();
@@ -554,12 +573,56 @@ int main()
             camera.target.x += cameraSpeed; 
         }
 
+        if(IsMouseButtonPressed(1))
+        {
+            if(selectedUnit)
+            {
+                if(selectedUnit->path)
+                {
+                    for(int32 i = 0; i < arrlen(selectedUnit->path); i++)
+                    {
+                        map_tile *pathTile = GetMapTile(map, mapWidth, mapHeight, selectedUnit->path[i]);
+                        pathTile->showPath = false;
+                    }
+                }
+                arrfree(selectedUnit->path);
+                
+                selectedUnit->path = FindPath(map, mapWidth, mapHeight, selectedUnit->coord, offsetUnderMouse);
+
+                for(int32 i = 0; i < arrlen(selectedUnit->path); i++)
+                {
+                    map_tile *pathTile = GetMapTile(map, mapWidth, mapHeight, selectedUnit->path[i]);
+                    pathTile->showPath = true;
+                }
+            }
+        }
 
         if(IsMouseButtonPressed(0))
         {
-            pathEnd = ScreenToOffset(GetScreenToWorld2D(GetMousePosition(), camera));
+            map_tile *tile = GetMapTile(map, mapWidth, mapHeight, offsetUnderMouse);
 
-            path = FindPath(map, mapWidth, mapHeight, Offset(0, 2), pathEnd);
+            if(tile && tile->unit)
+            {
+                if(selectedUnit && selectedUnit->path)
+                {
+                    for(int32 i = 0; i < arrlen(selectedUnit->path); i++)
+                    {
+                        map_tile *pathTile = GetMapTile(map, mapWidth, mapHeight, selectedUnit->path[i]);
+                        pathTile->showPath = false;
+                    }
+                }
+
+                selectedUnit = tile->unit;
+
+                if(selectedUnit->path)
+                {
+                    for(int32 i = 0; i < arrlen(selectedUnit->path); i++)
+                    {
+                        map_tile *pathTile = GetMapTile(map, mapWidth, mapHeight, selectedUnit->path[i]);
+                        pathTile->showPath = true;
+                    }
+                }
+            }
         }
         
         //----------------------------------------------------------------------------------
@@ -597,24 +660,23 @@ int main()
                     //DrawPoly(center, 6, HEX_SIZE, 0.0f, tile->color);
                     DrawPolyLines(center, 6, HEX_SIZE, 0.0f, BLACK);
                     DrawText(str, center.x - 10, center.y, 10, BLACK);
+
+                    if(tile->unit)
+                    {
+                        DrawRectangleV(center, Vec2(20.0f, 30.0f), GREEN);
+                    }
+
+                    if(tile->showPath)
+                    {
+                        DrawCircleV(center, 30.0f, BLACK);
+                    }
                 }
             }
 
             ////// hex under mouse
-            offset_coord offset = ScreenToOffset(GetScreenToWorld2D(GetMousePosition(), camera));
-            v2 pos = OffsetToScreen(offset);
+            v2 pos = OffsetToScreen(offsetUnderMouse);
 
-            DrawPoly(pos, 6, HEX_SIZE, 0.0f, BLUE);    
-
-            if(path)
-            {
-                for(int32 i = 0; i < arrlen(path); i++)
-                {
-                    offset_coord pathOffset = path[i];
-                    v2 pathPos = OffsetToScreen(pathOffset);
-                    DrawCircleV(pathPos, 30.0f, BLACK);
-                }
-            }        
+            DrawPoly(pos, 6, HEX_SIZE, 0.0f, BLUE);        
 
             EndMode2D();
 
