@@ -74,7 +74,7 @@ inline v4 Vec4(float x, float y, float z, float w)
     return result;
 }
 
-inline Rectangle Rec(int x, int y, int width, int height)
+inline Rectangle Rec(float x, float y, float width, float height)
 {
     Rectangle result = (Rectangle){x, y, width, height};
 
@@ -124,6 +124,8 @@ struct map_tile
     Color overlayColor;
     game_unit *unit;
     bool showPath;
+    bool passable;
+    float moveCost;
 };
 
 struct game_map

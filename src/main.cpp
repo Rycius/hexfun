@@ -20,16 +20,15 @@ v2 PointyHexCorner(v2 center, float size, int32 i)
 }
 
 
-
 bool IsOnScreen(v2 pos, v2 dim, Camera2D camera)
 {
     bool result = false;
 
     v2 zoomDim = Vector2Scale(dim, camera.zoom);
     v2 screenPos = GetWorldToScreen2D(pos, camera);
-    Rectangle screenRec = Rec(screenPos.x - zoomDim.x/2, screenPos.y - zoomDim.y/2, zoomDim.x, zoomDim.y);
+    Rectangle screenRec = Rec(screenPos.x - zoomDim.x/2.0f, screenPos.y - zoomDim.y/2.0f, zoomDim.x, zoomDim.y);
     
-    result = CheckCollisionRecs(screenRec, Rec(0, 0, GetScreenWidth(), GetScreenHeight()));
+    result = CheckCollisionRecs(screenRec, Rec(0.0f, 0.0f, GetScreenWidth(), GetScreenHeight()));
 
     return result;
 }
@@ -70,7 +69,7 @@ int main()
     float cameraZoomTarget = 1.0f;
 
     game_map *map = (game_map *)MemAlloc(sizeof(game_map));
-    InitMap(map, 64, 48, false);
+    InitMap(map, 64, 48, true);
     GenerateTerrain(map);
 
 
@@ -105,10 +104,6 @@ int main()
     offset_coord offsetUnderMouse = {0};
 
     game_unit *selectedUnit = 0;
-
-    offset_coord pathStart = {0};
-    offset_coord pathEnd = {0};
-    offset_coord *path = 0;
 
     //--------------------------------------------------------------------------------------
     // Main game loop
@@ -164,7 +159,7 @@ int main()
                         map_tile *pathTile = GetMapTile(map, selectedUnit->path[i]);
                         pathTile->showPath = false;
                     }
-                    
+
                     arrfree(selectedUnit->path);
                 }
                 

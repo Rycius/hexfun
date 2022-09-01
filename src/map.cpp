@@ -132,6 +132,15 @@ float Heuristic(offset_coord a, offset_coord b, int32 mapWidth, bool wrap)
     return result;
 }
 
+float MoveCost(map_tile *a, map_tile *b)
+{
+    float result = 0.0f;
+
+    result = b->moveCost;
+
+    return result;
+}
+
 
 offset_coord *FindPath(game_map *map, offset_coord start, offset_coord end)
 {
@@ -148,6 +157,8 @@ offset_coord *FindPath(game_map *map, offset_coord start, offset_coord end)
 
     map_tile *startTile = GetMapTile(map, start);
     map_tile *endTile = GetMapTile(map, end);
+
+    if(!startTile || !endTile) return 0;
 
     path_node node = {0};
     node.offset = start;
@@ -208,6 +219,7 @@ offset_coord *FindPath(game_map *map, offset_coord start, offset_coord end)
             map_tile *neighborTile = GetMapTile(map, neighborsOffsets[i]);
              
             if(neighborTile == 0) continue;
+            if(neighborTile->passable == false) continue;
             
             bool inClosedList = false;
             for(int32 i = 0; i < arrlen(closedList); i++)
@@ -238,7 +250,7 @@ offset_coord *FindPath(game_map *map, offset_coord start, offset_coord end)
                 path_node neighborNode = {0};
                 neighborNode.offset = neighborsOffsets[i];
                 neighborNode.cameFrom = currNode;
-                neighborNode.g = currNode->g + 1.0f; // +cost to move from tile to other tile
+                neighborNode.g = currNode->g + MoveCost(currNode->tile, neighborTile); // +cost to move from tile to other tile
                 neighborNode.h = Heuristic(neighborNode.offset, end, map->width, map->wrap);
                 neighborNode.f = neighborNode.g + neighborNode.h;
                 neighborNode.tile = neighborTile;
@@ -248,10 +260,10 @@ offset_coord *FindPath(game_map *map, offset_coord start, offset_coord end)
             }
             else
             {
-                if((currNode->g + 1.0f) < openlist[openIndex]->g) // +cost to move from tile to other tile
+                if((currNode->g + MoveCost(currNode->tile, neighborTile)) < openlist[openIndex]->g) // +cost to move from tile to other tile
                 {
                     openlist[openIndex]->cameFrom = currNode;
-                    openlist[openIndex]->g = currNode->g + 1.0f; // // cost to move from tile to other tile
+                    openlist[openIndex]->g = currNode->g + MoveCost(currNode->tile, neighborTile); // // cost to move from tile to other tile
                     openlist[openIndex]->f = openlist[openIndex]->g + openlist[openIndex]->h;
                 }
             }
@@ -286,10 +298,10 @@ void InitMap(game_map *map, int32 width, int32 height, bool wrap)
             tile.offset.row = y;
 
             tile.overlayColor = WHITE;
-            if(x == 0) 
-                tile.overlayColor = BLUE;
-            else if(x == map->width - 1)
-                tile.overlayColor = RED;
+            // if(x == 0) 
+            //     tile.overlayColor = BLUE;
+            // else if(x == map->width - 1)
+            //     tile.overlayColor = YELLOW;
 
             arrput(map->tiles, tile);
         }
@@ -312,6 +324,7 @@ void GenerateTerrain(game_map *map)
     UnloadImage(hexDesertImg);
     UnloadImage(treesImg);
 
+    SetRandomSeed(GetTime());
 
     for(int32 y = 0; y < map->height; y++)
     {
@@ -320,6 +333,21 @@ void GenerateTerrain(game_map *map)
             map_tile *tile = GetMapTile(map, Offset(x, y));
 
             tile->texture = hexGrasslandTex;
+
+            int32 passRand = GetRandomValue(0, 10);
+            tile->passable = passRand > 2 ? true : false;
+            if(tile->passable == false)
+            {
+                tile->overlayColor = RED;
+            }
+            else
+            {
+                int32 hillRand = GetRandomValue(0, 10);
+                tile->moveCost = hillRand > 3 ? 1.0f : 2.0f;
+                if(tile->moveCost > 1.0f)
+                    tile->texture = treesTex;
+            }
+
             if(y > 5 && y < 10 && x > 3 && x < 10)
             {
                 tile->texture = hexDesertTex;
