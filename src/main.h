@@ -91,6 +91,8 @@ inline int Clamp(int value, int min, int max)
 
 enum direction {DIR_EAST, DIR_NORTH_EAST, DIR_NORTH_WEST, DIR_WEST, DIR_SOUTH_WEST, DIR_SOUTH_EAST, DIR_COUNT};
 
+enum game_state {GAME_STATE_MAIN_MENU, GAME_STATE_PLAYERS_TURN, GAME_STATE_NPC_TURN, GAME_STATE_TURN_END};
+
 struct cube_coord
 {
     int32 q;
@@ -110,11 +112,14 @@ struct offset_coord
     int32 row;
 };
 
-
 struct game_unit
 {
     offset_coord coord;
+    float transition;
+    bool moving;
     offset_coord *path;
+    float movement;
+    float movementLeft;
 };
 
 struct map_tile
@@ -134,17 +139,6 @@ struct game_map
     int32 height;
     map_tile *tiles;
     bool wrap;
-};
-
-
-struct path_node
-{
-    offset_coord offset;
-    float f;
-    float g;
-    float h;
-    path_node *cameFrom;
-    map_tile *tile;
 };
 
 inline offset_coord Offset(int32 c, int32 r)

@@ -105,6 +105,8 @@ int main()
 
     game_unit *selectedUnit = 0;
 
+    game_unit **movingUnits = 0;
+
     //--------------------------------------------------------------------------------------
     // Main game loop
     while (!WindowShouldClose())    // Detect window close button or ESC key
@@ -170,6 +172,11 @@ int main()
                     map_tile *pathTile = GetMapTile(map, selectedUnit->path[i]);
                     pathTile->showPath = true;
                 }
+
+                if(selectedUnit->path)
+                {
+                    arrpush(movingUnits, selectedUnit);
+                }
             }
         }
 
@@ -200,7 +207,6 @@ int main()
                 }
             }
         }
-        
         //----------------------------------------------------------------------------------
 
         // Draw
@@ -242,12 +248,42 @@ int main()
 
                     if(tile->unit)
                     {
-                        DrawRectangleV(center, Vec2(20.0f, 30.0f), GREEN);
+                        v2 unitPos = {0};
+
+                        if(tile->unit->moving)
+                        {
+                            tile->unit->transition += 1.0f/60.0f;
+
+                            if(tile->unit->transition > 1.0f) tile->unit->transition = 1.0f;
+                            {
+                                tile->unit->coord = tile->unit->path[0];
+                                GetMapTile(map, tile->unit->coord)->unit = tile->unit;
+
+                                tile->unit->transition = 0;
+                                arrdel(tile->unit->path, 0);
+
+                                tile->unit = 0;
+                            }
+                            else
+                            {
+                                v2 from = center;
+                                v2 dir = Vector2Subtract(OffsetToScreen(tile->offset), OffsetToScreen(tile->unit->path[0]));
+                                dir = Vector2Normalize(dir);
+
+                                v2 step = Vector2Scale(dir, tile->unit->transition * HEX_WIDTH * 2.0f);
+
+                                unitPos = Vector2Add(from, step);
+                            }
+
+                            
+                        }
+
+                        DrawRectangleV(unitPos, Vec2(20.0f, 30.0f), GREEN);
                     }
 
                     if(tile->showPath)
                     {
-                        DrawCircleV(center, 30.0f, BLACK);
+                        DrawCircleV(center, 30.0f, Fade(BLACK, 0.3f));
                     }
                 }
             }

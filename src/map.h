@@ -136,3 +136,13 @@ inline v2 OffsetToScreen(offset_coord o)
 
     return result;
 }
+
+struct path_node
+{
+    offset_coord offset;
+    float f;
+    float g;
+    float h;
+    path_node *cameFrom;
+    map_tile *tile;
+};
