@@ -3,8 +3,7 @@
 #define STB_DS_IMPLEMENTATION
 #include "main.h"
 #include "gui.cpp"
-
-
+#include "map.cpp"
 
 
 v2 PointyHexCorner(v2 center, float size, int32 i)
@@ -34,384 +33,6 @@ bool IsOnScreen(v2 pos, v2 dim, Camera2D camera)
 
     return result;
 }
-
-inline offset_coord Offset(int32 c, int32 r)
-{
-    offset_coord result = {0};
-
-    result.col = c;
-    result.row = r;
-
-    return result;
-}
-
-map_tile *GetMapTile(map_tile *map, int32 mapWidth, int32 mapHeight, offset_coord offset)
-{
-    map_tile *result = 0;
-
-    if(offset.row < 0 || offset.row > mapHeight - 1) return 0;
-
-
-    uint32 address = offset.row * mapWidth;
-    if(offset.col < 0)
-    {
-        int32 mod = offset.col % mapWidth;
-        if(mod < 0)
-            address += mapWidth + offset.col % mapWidth;
-        else
-            address += offset.col % mapWidth;   
-    } 
-    else
-        address += offset.col % mapWidth;
-
-    result = &map[address];
-
-    return result;
-}
-
-
-inline axial_coord CubeToAxial(cube_coord cube)
-{
-    axial_coord result = {0};
-
-    result.q = cube.q;
-    result.r = cube.r;
-
-    return result;
-}
-
-inline cube_coord AxialToCube(axial_coord axial)
-{
-    cube_coord result = {0};
-
-    result.q = axial.q;
-    result.r = axial.r;
-    result.s = -axial.q - axial.r;
-
-    return result;
-}
-
-inline offset_coord AxialToOffset(axial_coord axial)
-{
-    offset_coord result = {0};
-
-    result.col = axial.q + (axial.r - (axial.r & 1)) / 2;
-    result.row = axial.r;
-
-    return result;
-}
-
-inline axial_coord OffsetToAxial(offset_coord o)
-{
-    axial_coord result = {0};
-
-    result.q = o.col - (o.row - (o.row & 1)) / 2;
-    result.r = o.row;
-
-    return result;
-}
-
-inline offset_coord CubeToOffset(cube_coord cube)
-{
-    offset_coord result = {0};
-
-    result.col = cube.q + (cube.r - (cube.r & 1)) / 2;
-    result.row = cube.r;
-
-    return result;
-}
-
-inline cube_coord OffsetToCube(offset_coord o)
-{
-    cube_coord result = {0};
-
-    result.q = o.col - (o.row - (o.row & 1)) / 2;
-    result.r = o.row;
-    result.s = -result.q - result.r;
-
-    return result;
-}
-
-inline cube_coord CubeRound(float q, float r, float s)
-{
-    cube_coord result = {0};
-
-    result.q = round(q);
-    result.r = round(r);
-    result.s = round(s);
-
-    float qDiff = abs(result.q - q);
-    float rDiff = abs(result.r - r);
-    float sDiff = abs(result.s - s);
-
-    if (qDiff > rDiff && qDiff > sDiff)
-        result.q = -result.r - result.s;
-    else if(rDiff > sDiff)
-        result.r = -result.q - result.s;
-    else 
-        result.s = -result.q - result.r;
-
-    return result;
-}
-
-inline axial_coord AxialRound(float q, float r)
-{
-    axial_coord result = {0};
-
-
-    cube_coord cube = CubeRound(q, r, -q - r);
-
-    result = CubeToAxial(cube);
-
-    return result;
-}
-
-inline axial_coord ScreenToAxial(v2 pos)
-{
-    axial_coord result = {0};
-
-    float q = (SQRT3 / 3.0f * pos.x - 1.0f / 3.0f * pos.y) / HEX_SIZE;
-    float r = (2.0f / 3.0f * pos.y) / HEX_SIZE;
-
-    result = AxialRound(q, r);
-
-    return result;
-}
-
-inline offset_coord ScreenToOffset(v2 pos)
-{
-    offset_coord result = {0};
-
-    result = AxialToOffset(ScreenToAxial(pos));
-
-    return result;
-}
-
-inline v2 AxialToScreen(axial_coord axial)
-{
-    v2 result = {0};
-
-    result.x = HEX_SIZE * (SQRT3 * axial.q + SQRT3 / 2.0f * axial.r);
-    result.y = HEX_SIZE * (3.0f / 2.0f * axial.r);
-
-    return result;
-}
-
-inline v2 OffsetToScreen(offset_coord o)
-{
-    v2 result = {0};
-
-    result.x = HEX_SIZE * SQRT3 * (o.col + 0.5f * (o.row&1));
-    result.y = HEX_SIZE * 3.0f / 2.0f * o.row;
-
-    return result;
-}
-
-
-
-
-offset_coord OffsetNeighbor(offset_coord offset, direction dir)
-{
-    offset_coord result = {0};
-
-    offset_coord directionDifferences[2][6] = {
-        // even rows 
-        {Offset(+1,  0), Offset(0, -1), Offset(-1, -1), 
-         Offset(-1,  0), Offset(-1, +1), Offset(0, +1)},
-        // odd rows 
-        {Offset(+1,  0), Offset(+1, -1), Offset(0, -1), 
-         Offset(-1,  0), Offset(0, +1), Offset(+1, +1)},
-    };
-    
-    int32 parity = offset.row & 1;
-    offset_coord diff = directionDifferences[parity][dir];
-
-    result.col = offset.col + diff.col;
-    result.row = offset.row + diff.row;
-
-    return result;
-}
-
-offset_coord *OffsetNeighbors(offset_coord offset)
-{
-    offset_coord *result = 0;
-    arrsetcap(result, 6);
-
-    for(int32 i = 0; i < DIR_COUNT; i++)
-    {
-        arrput(result, OffsetNeighbor(offset, (direction)i));
-    }
-
-    return result;
-}
-
-float CubeDistance (cube_coord a, cube_coord b)
-{
-    float result = 0;
-
-    result = (abs(a.q - b.q) + abs(a.r - b.r) + abs(a.s - b.s)) / 2;
-
-    return result;
-    
-}
-
-float AxialDistance(axial_coord a, axial_coord b)
-{
-    float result = 0;
-
-    result = (abs(a.q - b.q) + abs(a.q + a.r - b.q - b.r) + abs(a.r - b.r)) / 2;
-
-    return result;
-}
-    
-float OffsetDistance(offset_coord a, offset_coord b)
-{
-    float result = 0;    
-
-    axial_coord ax = OffsetToAxial(a);
-    axial_coord bx = OffsetToAxial(b);
-    result = AxialDistance(ax, bx);
-
-    return result;
-}
-
-float Heuristic(offset_coord a, offset_coord b)
-{
-    float result = 0.0f;
-
-    result = OffsetDistance(a, b);
-
-    return result;
-}
-
-/// BUG: 
-offset_coord *FindPath(map_tile *map, int32 mapWidth, int32 mapHeight, offset_coord start, offset_coord end)
-{
-    offset_coord *result = 0;
-
-    path_node *pnList = 0;
-    arrsetcap(pnList, mapWidth*mapHeight);
-
-    path_node **openlist = 0;
-    arrsetcap(openlist, mapWidth*mapHeight);
-
-    path_node **closedList = 0;
-    arrsetcap(closedList, mapWidth*mapHeight);
-
-    map_tile *startTile = GetMapTile(map, mapWidth, mapHeight, start);
-    map_tile *endTile = GetMapTile(map, mapWidth, mapHeight, end);
-
-    path_node node = {0};
-    node.offset = start;
-    node.tile = startTile;
-    
-    arrpush(pnList, node);
-    arrpush(openlist, &pnList[arrlen(pnList)-1]);
-    
-    path_node *currNode = 0;
-
-    while(arrlen(openlist) > 0)
-    {
-        // for(int32 i = 0; i < arrlen(openlist); i++)
-        // {
-        //     path_node *n = openlist[i];
-        //     TraceLog(LOG_INFO, "openlist x:%d, y:%d, g:%.2f, h:%.2f f:%.2f", n->tile->offset.col, n->tile->offset.row, n->g, n->h, n->f);
-        // }
-
-        float lowestF = __FLT_MAX__;
-        int32 lowestFID = -1;
-        for(int32 i = 0; i < arrlen(openlist); i++)
-        {
-            if(openlist[i]->f < lowestF) 
-            {
-                currNode = openlist[i];
-                lowestF = currNode->f;
-                lowestFID = i;
-            }
-        }
-
-        arrdel(openlist, lowestFID);
-        arrpush(closedList, currNode);
-
-        if(currNode->tile == endTile)
-        {
-            while(currNode->tile != startTile)
-            {
-                arrpush(result, currNode->offset);
-                currNode = currNode->cameFrom;
-            }
-
-            break;
-        }
-
-        offset_coord *neighborsOffsets = OffsetNeighbors(currNode->offset);
-
-        for(int32 i = 0; i < arrlen(neighborsOffsets); i++)
-        {
-            //TraceLog(LOG_INFO, "Neighbor x:%d, y:%d", neighborsOffsets[i].col, neighborsOffsets[i].row);
-            map_tile *neighborTile = GetMapTile(map, mapWidth, mapHeight, neighborsOffsets[i]);
-             
-            if(neighborTile == 0) continue;
-            
-            bool inClosedList = false;
-            for(int32 i = 0; i < arrlen(closedList); i++)
-            {
-                if(closedList[i]->tile == neighborTile)
-                {
-                    inClosedList = true;
-                    break;
-                }
-            }
-            if(inClosedList) continue;
-
-            bool inOpenList = false;
-            int32 openIndex = -1;
-
-            for(int32 i = 0; i < arrlen(openlist); i++)
-            {
-                if(openlist[i]->tile == neighborTile)
-                {
-                    inOpenList = true;
-                    openIndex = i;
-                    break;
-                }
-            }
-
-            if(inOpenList == false)
-            {
-                path_node neighborNode = {0};
-                neighborNode.offset = neighborsOffsets[i];
-                neighborNode.cameFrom = currNode;
-                neighborNode.g = currNode->g + 1.0f; // +cost to move from tile to other tile
-                neighborNode.h = Heuristic(neighborNode.offset, end);
-                neighborNode.f = neighborNode.g + neighborNode.h;
-                neighborNode.tile = neighborTile;
-
-                arrput(pnList, neighborNode);
-                arrput(openlist, &pnList[arrlen(pnList)-1]);
-            }
-            else
-            {
-                if((currNode->g + 1.0f) < openlist[openIndex]->g) // +cost to move from tile to other tile
-                {
-                    openlist[openIndex]->cameFrom = currNode;
-                    openlist[openIndex]->g = currNode->g + 1.0f; // // cost to move from tile to other tile
-                    openlist[openIndex]->f = openlist[openIndex]->g + openlist[openIndex]->h;
-                }
-            }
-        }
-        arrfree(neighborsOffsets);
-    }
-
-    arrfree(pnList);
-    arrfree(openlist);
-    arrfree(closedList);
-
-    return result;
-}
-
-
-
 
 
 int main() 
@@ -448,26 +69,18 @@ int main()
     float cameraZoomSpeed = 2.0f;
     float cameraZoomTarget = 1.0f;
 
-
-    int32 mapWidth = 64;
-    int32 mapHeight = 48;
-
-    Image hexGrasslandImg = LoadImage("../resources/hex_grassland.png");
-    Texture hexGrasslandTex = LoadTextureFromImage(hexGrasslandImg);
-
-    Image hexDesertImg = LoadImage("../resources/hex_Desert.png");
-    Texture hexDesertTex = LoadTextureFromImage(hexDesertImg);
-
-    Image treesImg = LoadImage("../resources/trees.png");
-    Texture treesTex = LoadTextureFromImage(treesImg);
-
-    Image catImg = LoadImage("../resources/cat.png");
-    Texture catTex = LoadTextureFromImage(catImg);
+    game_map *map = (game_map *)MemAlloc(sizeof(game_map));
+    InitMap(map, 64, 48, false);
+    GenerateTerrain(map);
 
 
-    int32 mapWidthInPixels = HEX_CENTRE_DIST_HOR * mapWidth + HEX_WIDTH / 2.0f;
-    int32 mapHeightInPixels = HEX_CENTRE_DIST_VERT * mapHeight + HEX_HEIGHT * 0.25f;
+    map_tile *unitTile = GetMapTile(map, Offset(5, 5));    
+    unitTile->unit = (game_unit *)MemAlloc(sizeof(game_unit));
+    unitTile->unit->coord = unitTile->offset;
+    
 
+    int32 mapWidthInPixels = HEX_CENTRE_DIST_HOR * map->width + HEX_WIDTH / 2.0f;
+    int32 mapHeightInPixels = HEX_CENTRE_DIST_VERT * map->height + HEX_HEIGHT * 0.25f;
 
 
     v2 *hexPoints = 0;
@@ -487,39 +100,7 @@ int main()
     }
 
     /////////////////////////// MAP SETUP ////////////////////////////////////
-    map_tile *map = 0;
-    arrsetcap(map, mapWidth * mapHeight);
-
-    for(int32 y = 0; y < mapHeight; y++)
-    {
-        for(int32 x = 0; x < mapWidth; x++)
-        {
-            map_tile tile = {0};
-
-            tile.offset.col = x;
-            tile.offset.row = y;
-
-            tile.texture = hexGrasslandTex;
-            if(y > 5 && y < 10 && x > 3 && x < 10)
-            {
-                tile.texture = hexDesertTex;
-            }
-
-            tile.overlayColor = WHITE;
-            if(x == 0) 
-                tile.overlayColor = BLUE;
-            else if(x == mapWidth - 1)
-                tile.overlayColor = RED;
-
-            if(x == 5 && y == 5)
-            {
-                tile.unit = (game_unit *)MemAlloc(sizeof(game_unit));
-                tile.unit->coord = tile.offset;
-            }
-
-            arrput(map, tile);
-        }
-    }
+    
 
     offset_coord offsetUnderMouse = {0};
 
@@ -535,7 +116,6 @@ int main()
     {
         // Update
         //----------------------------------------------------------------------------------
-
         offsetUnderMouse = ScreenToOffset(GetScreenToWorld2D(GetMousePosition(), camera));
    
         if(IsKeyPressed(KEY_F)) ToggleFullscreen();
@@ -573,7 +153,7 @@ int main()
             camera.target.x += cameraSpeed; 
         }
 
-        if(IsMouseButtonPressed(1))
+        if(IsMouseButtonDown(1))
         {
             if(selectedUnit)
             {
@@ -581,17 +161,18 @@ int main()
                 {
                     for(int32 i = 0; i < arrlen(selectedUnit->path); i++)
                     {
-                        map_tile *pathTile = GetMapTile(map, mapWidth, mapHeight, selectedUnit->path[i]);
+                        map_tile *pathTile = GetMapTile(map, selectedUnit->path[i]);
                         pathTile->showPath = false;
                     }
+                    
+                    arrfree(selectedUnit->path);
                 }
-                arrfree(selectedUnit->path);
                 
-                selectedUnit->path = FindPath(map, mapWidth, mapHeight, selectedUnit->coord, offsetUnderMouse);
+                selectedUnit->path = FindPath(map, selectedUnit->coord, offsetUnderMouse);
 
                 for(int32 i = 0; i < arrlen(selectedUnit->path); i++)
                 {
-                    map_tile *pathTile = GetMapTile(map, mapWidth, mapHeight, selectedUnit->path[i]);
+                    map_tile *pathTile = GetMapTile(map, selectedUnit->path[i]);
                     pathTile->showPath = true;
                 }
             }
@@ -599,7 +180,7 @@ int main()
 
         if(IsMouseButtonPressed(0))
         {
-            map_tile *tile = GetMapTile(map, mapWidth, mapHeight, offsetUnderMouse);
+            map_tile *tile = GetMapTile(map, offsetUnderMouse);
 
             if(tile && tile->unit)
             {
@@ -607,7 +188,7 @@ int main()
                 {
                     for(int32 i = 0; i < arrlen(selectedUnit->path); i++)
                     {
-                        map_tile *pathTile = GetMapTile(map, mapWidth, mapHeight, selectedUnit->path[i]);
+                        map_tile *pathTile = GetMapTile(map, selectedUnit->path[i]);
                         pathTile->showPath = false;
                     }
                 }
@@ -618,7 +199,7 @@ int main()
                 {
                     for(int32 i = 0; i < arrlen(selectedUnit->path); i++)
                     {
-                        map_tile *pathTile = GetMapTile(map, mapWidth, mapHeight, selectedUnit->path[i]);
+                        map_tile *pathTile = GetMapTile(map, selectedUnit->path[i]);
                         pathTile->showPath = true;
                     }
                 }
@@ -634,21 +215,24 @@ int main()
             ClearBackground(PINK);
             BeginMode2D(camera);
 
+
             int32 heightToDraw = screenHeight / HEX_CENTRE_DIST_VERT + 3;
-            int32 widthToDraw = screenWidth / HEX_CENTRE_DIST_HOR + 3;
-           
+            int32 widthToDraw = screenWidth / HEX_CENTRE_DIST_HOR + 4;
             v2 leftTopPixel = Vector2Subtract(camera.target, camera.offset);
-            offset_coord offsetStart = AxialToOffset(ScreenToAxial(leftTopPixel));
+            offset_coord offsetStart = ScreenToOffset(leftTopPixel);
             offsetStart.col -=1;
             if(offsetStart.row > 0) offsetStart.row -= 1;
+            
             
             for(int32 y = offsetStart.row; y < offsetStart.row + heightToDraw; y++)
             {
                 for(int32 x = offsetStart.col; x < offsetStart.col + widthToDraw; x++)
-                {
-                    offset_coord offset = Offset(x, Clamp(y, 0, mapHeight-1));
+                {   
+                    int32 maxX = map->wrap ? INT32_MAX : map->width;
+                    int32 minX = map->wrap ? INT32_MIN : 0;
+                    offset_coord offset = Offset(Clamp(x, minX, maxX), Clamp(y, 0, map->height));
 
-                    map_tile *tile = GetMapTile(map, mapWidth, mapHeight, offset);
+                    map_tile *tile = GetMapTile(map, offset);
 
                     const char *str = TextFormat("%d:%d", tile->offset.row, tile->offset.col);
 
