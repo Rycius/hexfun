@@ -5,6 +5,8 @@
 
 #include "stb_ds.h"
 
+
+
 #define int8   int8_t
 #define uint8  uint8_t
 #define int16  int16_t
@@ -82,14 +84,25 @@ inline Rectangle Rec(int x, int y, int width, int height)
 inline int Clamp(int value, int min, int max)
 {
     if(value < min) return min;
-    if(value > max) return max;
+    if(value >= max) return max - 1;
     return value;
 }
 
 
 enum direction {DIR_EAST, DIR_NORTH_EAST, DIR_NORTH_WEST, DIR_WEST, DIR_SOUTH_WEST, DIR_SOUTH_EAST, DIR_COUNT};
 
+struct cube_coord
+{
+    int32 q;
+    int32 r;
+    int32 s;
+};
 
+struct axial_coord
+{
+    int32 q;
+    int32 r;
+};
 
 struct offset_coord
 {
@@ -113,18 +126,14 @@ struct map_tile
     bool showPath;
 };
 
-struct cube_coord
+struct game_map
 {
-    int32 q;
-    int32 r;
-    int32 s;
+    int32 width;
+    int32 height;
+    map_tile *tiles;
+    bool wrap;
 };
 
-struct axial_coord
-{
-    int32 q;
-    int32 r;
-};
 
 struct path_node
 {
@@ -135,3 +144,13 @@ struct path_node
     path_node *cameFrom;
     map_tile *tile;
 };
+
+inline offset_coord Offset(int32 c, int32 r)
+{
+    offset_coord result = {0};
+
+    result.col = c;
+    result.row = r;
+
+    return result;
+}
