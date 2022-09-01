@@ -254,8 +254,9 @@ int main()
                         {
                             tile->unit->transition += 1.0f/60.0f;
 
-                            if(tile->unit->transition > 1.0f) tile->unit->transition = 1.0f;
+                            if(tile->unit->transition > 1.0f) 
                             {
+                                tile->unit->transition = 1.0f;
                                 tile->unit->coord = tile->unit->path[0];
                                 GetMapTile(map, tile->unit->coord)->unit = tile->unit;
 
@@ -274,7 +275,6 @@ int main()
 
                                 unitPos = Vector2Add(from, step);
                             }
-
                             
                         }
 
