@@ -137,6 +137,20 @@ inline v2 OffsetToScreen(offset_coord coord)
     return result;
 }
 
+inline v2 RealOffsetToScreen(offset_coord coord, Camera2D camera, int32 mapWidth)
+{
+    v2 result = {0};
+
+    v2 leftTopPixel = Vector2Subtract(camera.target, camera.offset);
+    int32 midCol = ScreenToOffset(Vec2(leftTopPixel.x + GetScreenWidth() / 2, leftTopPixel.y)).col;
+    int32 page = round((float)midCol / (float)mapWidth);
+
+    coord.col += page * mapWidth;
+    result = OffsetToScreen(coord);
+
+    return result;
+}
+
 
 inline offset_coord OffsetWrapAdjusted(offset_coord coord, Camera2D camera)
 {
@@ -150,6 +164,7 @@ inline offset_coord OffsetWrapAdjusted(offset_coord coord, Camera2D camera)
 
     return result;
 }
+
 
 
 struct path_node

@@ -19,6 +19,101 @@ v2 PointyHexCorner(v2 center, float size, int32 i)
     return result;
 }
 
+bool ArrContainsOffset(offset_coord *arr, offset_coord coord)
+{
+    bool result = false;
+
+    for(int32 i = 0; i < arrlen(arr); i++)
+    {
+        if(arr[i].col == coord.col && arr[i].row == coord.row)
+        {
+            result = true;
+            break;
+        }
+    }
+
+    return result;
+}
+
+inline v2 *HexLine(v2 center, direction dir)
+{
+    v2 *result = {0};
+
+    v2 corner1 = {0};
+    v2 corner2 = {0};
+
+    switch (dir)
+    {
+    case DIR_EAST:
+        corner1 = PointyHexCorner(center, HEX_SIZE, 0);
+        corner2 = PointyHexCorner(center, HEX_SIZE, 1);
+    break; 
+    
+    case DIR_NORTH_EAST:
+        corner1 = PointyHexCorner(center, HEX_SIZE, 5);
+        corner2 = PointyHexCorner(center, HEX_SIZE, 0);
+    break; 
+    
+    case DIR_NORTH_WEST:
+        corner1 = PointyHexCorner(center, HEX_SIZE, 4);
+        corner2 = PointyHexCorner(center, HEX_SIZE, 5);
+    break;
+    
+    case DIR_WEST:
+        corner1 = PointyHexCorner(center, HEX_SIZE, 3);
+        corner2 = PointyHexCorner(center, HEX_SIZE, 4);
+    break;
+
+    case DIR_SOUTH_WEST:
+        corner1 = PointyHexCorner(center, HEX_SIZE, 2);
+        corner2 = PointyHexCorner(center, HEX_SIZE, 3);
+    break;
+    
+    case DIR_SOUTH_EAST:
+        corner1 = PointyHexCorner(center, HEX_SIZE, 1);
+        corner2 = PointyHexCorner(center, HEX_SIZE, 2);
+    break;
+    
+    default:
+        break;
+    }
+    
+    arrpush(result, corner1);
+    arrpush(result, corner2);
+
+    return result;
+}
+
+
+
+v2 *CityAreaLine(game_city *city)
+{
+    v2 *result = 0;
+
+    for(int32 i = 0; i < arrlen(city->area); i++)
+    {
+        v2 dir = Vector2Normalize(Vector2Subtract(OffsetToScreen(city->area[i]), OffsetToScreen(city->coord)));
+        offset_coord *neighbors = OffsetNeighbors(city->area[i]);
+
+        for(int32 n = 0; n < arrlen(neighbors); n++)
+        {
+            if(neighbors[n].col == city->coord.col && neighbors[n].row == city->coord.row) continue;
+            if(ArrContainsOffset(city->area, neighbors[n])) continue;
+
+            v2 *line = HexLine(Vector2Scale(dir, HEX_CENTRE_DIST_HOR), (direction)n);
+            v2 p1 = line[0];
+            v2 p2 = line[1];
+            arrpush(result, p1);
+            arrpush(result, p2);
+            arrfree(line);
+            
+        }
+
+        arrfree(neighbors);
+    }
+
+    return result;
+}
 
 bool IsOnScreen(v2 pos, v2 dim, Camera2D camera)
 {
@@ -105,7 +200,6 @@ int main()
 
     game_unit *selectedUnit = 0;
 
-    game_unit **movingUnits = 0;
 
     selectedUnit = (game_unit *)MemAlloc(sizeof(game_unit));
     GetMapTile(map, Offset(5, 5))->unit = selectedUnit;
@@ -114,6 +208,14 @@ int main()
     selectedUnit->movementLeft = 2;
     
     game_unit **unitsToDraw = 0;
+
+
+    game_city *city = (game_city *)MemAlloc(sizeof(game_city));
+    city->coord = Offset(10, 10);
+    city->area = OffsetNeighbors(city->coord);
+    city->areaLine = CityAreaLine(city);
+
+
     //--------------------------------------------------------------------------------------
     // Main game loop
     while (!WindowShouldClose())    // Detect window close button or ESC key
@@ -181,9 +283,9 @@ int main()
                     pathTile->showPath = true;
                 }
 
-                if(selectedUnit->path)
+                if(selectedUnit->path && MoveCost(GetMapTile(map, selectedUnit->coord), GetMapTile(map, selectedUnit->path[0])) <= selectedUnit->movementLeft)
                 {
-                    arrpush(movingUnits, selectedUnit);
+                    selectedUnit->moving = true;
                 }
             }
         }
@@ -214,6 +316,11 @@ int main()
                     }
                 }
             }
+        }
+
+        if(IsKeyPressed(KEY_R))
+        {
+            selectedUnit->movementLeft = selectedUnit->movement;
         }
         //----------------------------------------------------------------------------------
 
@@ -270,16 +377,12 @@ int main()
             }
 
             //////////////////// RENDERING UNITS //////////////////////////////////
-            int32 midCol = ScreenToOffset(Vec2(leftTopPixel.x + screenWidth / 2, leftTopPixel.y)).col;
-            int32 page = round((float)midCol / (float)map->width);
             for(int32 i = 0; i < arrlen(unitsToDraw); i++)
             {
                 game_unit *unit = unitsToDraw[i];
-                offset_coord drawCoord = unit->coord;
-                drawCoord.col += page * map->width;
-                v2 drawPos = OffsetToScreen(drawCoord);
+                v2 drawPos = RealOffsetToScreen(unit->coord, camera, map->width);
 
-                if(arrlen(unit->path) > 0)
+                if(arrlen(unit->path) > 0 && unit->moving)
                 {
                     bool goNext = false;
                     unit->transition += 0.01f;
@@ -290,24 +393,48 @@ int main()
                     }
 
                     offset_coord next = unit->path[0];
-                    next.col += page * map->width;
 
-                    v2 nextPos = OffsetToScreen(next);
+                    v2 nextPos = RealOffsetToScreen(next, camera, map->width);
 
                     drawPos = Vector2Lerp(drawPos, nextPos, unit->transition);
 
                     if(goNext)
                     {
+                        unit->movementLeft -= MoveCost(GetMapTile(map, unit->coord), GetMapTile(map, next));
                         GetMapTile(map, unit->coord)->unit = 0;
                         unit->coord = unit->path[0];
                         unit->transition = 0.0f;
                         GetMapTile(map, next)->showPath = false;
                         GetMapTile(map, next)->unit = unit;
                         arrdel(unit->path, 0);
+
+                        if(arrlen(unit->path) > 0)
+                        {
+                            if(MoveCost(GetMapTile(map, unit->coord), GetMapTile(map, unit->path[0])) > unit->movementLeft)
+                            {
+                                unit->moving = false;
+                            }
+                        }
+                        else
+                        {
+                            unit->moving = false;
+                        }
                     }
                 }
 
                 DrawRectangleV(drawPos, Vec2(20.0f, 35.0f), GREEN);
+            }
+            arrfree(unitsToDraw);
+
+            ////////////// RENDERING CITIES ////////////////
+            v2 cityDrawPos = RealOffsetToScreen(city->coord, camera, map->width);
+            DrawCircleV(cityDrawPos, 30.0f, BLUE);
+            for(int32 i = 0; i < arrlen(city->areaLine); i+=2)
+            {
+                v2 linestart = Vector2Add(city->areaLine[i], cityDrawPos);
+                v2 lineEnd = Vector2Add(city->areaLine[i+1], cityDrawPos);
+                DrawLineEx(linestart, lineEnd, 3.0f, BLUE);
+                
             }
 
             ////// hex under mouse
@@ -321,7 +448,7 @@ int main()
 
         EndDrawing();
 
-        arrfree(unitsToDraw);
+        
         //----------------------------------------------------------------------------------
     }
 

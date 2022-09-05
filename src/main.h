@@ -89,6 +89,7 @@ inline int Clamp(int value, int min, int max)
 }
 
 
+
 enum direction {DIR_EAST, DIR_NORTH_EAST, DIR_NORTH_WEST, DIR_WEST, DIR_SOUTH_WEST, DIR_SOUTH_EAST, DIR_COUNT};
 
 enum game_state {GAME_STATE_MAIN_MENU, GAME_STATE_PLAYERS_TURN, GAME_STATE_NPC_TURN, GAME_STATE_TURN_END};
@@ -139,6 +140,14 @@ struct game_map
     int32 height;
     map_tile *tiles;
     bool wrap;
+};
+
+
+struct game_city
+{
+    offset_coord coord;
+    offset_coord *area;
+    v2 *areaLine;
 };
 
 inline offset_coord Offset(int32 c, int32 r)
