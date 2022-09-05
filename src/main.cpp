@@ -69,7 +69,7 @@ int main()
     float cameraZoomTarget = 1.0f;
 
     game_map *map = (game_map *)MemAlloc(sizeof(game_map));
-    InitMap(map, 64, 48, true);
+    InitMap(map, 44, 26, true);
     GenerateTerrain(map);
 
 
@@ -107,6 +107,13 @@ int main()
 
     game_unit **movingUnits = 0;
 
+    selectedUnit = (game_unit *)MemAlloc(sizeof(game_unit));
+    GetMapTile(map, Offset(5, 5))->unit = selectedUnit;
+    selectedUnit->coord = Offset(5, 5);
+    selectedUnit->movement = 2;
+    selectedUnit->movementLeft = 2;
+    
+    game_unit **unitsToDraw = 0;
     //--------------------------------------------------------------------------------------
     // Main game loop
     while (!WindowShouldClose())    // Detect window close button or ESC key
@@ -166,6 +173,7 @@ int main()
                 }
                 
                 selectedUnit->path = FindPath(map, selectedUnit->coord, offsetUnderMouse);
+                selectedUnit->moving = false;
 
                 for(int32 i = 0; i < arrlen(selectedUnit->path); i++)
                 {
@@ -216,6 +224,7 @@ int main()
             ClearBackground(PINK);
             BeginMode2D(camera);
 
+            ////////////////////// RENDERING TILES AND THING ON THEM //////////////////////////////////
 
             int32 heightToDraw = screenHeight / HEX_CENTRE_DIST_VERT + 3;
             int32 widthToDraw = screenWidth / HEX_CENTRE_DIST_HOR + 4;
@@ -223,11 +232,13 @@ int main()
             offset_coord offsetStart = ScreenToOffset(leftTopPixel);
             offsetStart.col -=1;
             if(offsetStart.row > 0) offsetStart.row -= 1;
+            offset_coord offsetEnd = offsetStart;
+            offsetEnd.col += widthToDraw;
+            offsetEnd.row += heightToDraw;            
             
-            
-            for(int32 y = offsetStart.row; y < offsetStart.row + heightToDraw; y++)
+            for(int32 y = offsetStart.row; y < offsetEnd.row; y++)
             {
-                for(int32 x = offsetStart.col; x < offsetStart.col + widthToDraw; x++)
+                for(int32 x = offsetStart.col; x < offsetEnd.col; x++)
                 {   
                     int32 maxX = map->wrap ? INT32_MAX : map->width;
                     int32 minX = map->wrap ? INT32_MIN : 0;
@@ -235,7 +246,7 @@ int main()
 
                     map_tile *tile = GetMapTile(map, offset);
 
-                    const char *str = TextFormat("%d:%d", tile->offset.row, tile->offset.col);
+                    const char *str = TextFormat("%d:%d", offset.row, offset.col);
 
                     v2 center = OffsetToScreen(offset);
                     Assert(tile);
@@ -248,37 +259,7 @@ int main()
 
                     if(tile->unit)
                     {
-                        v2 unitPos = {0};
-
-                        if(tile->unit->moving)
-                        {
-                            tile->unit->transition += 1.0f/60.0f;
-
-                            if(tile->unit->transition > 1.0f) 
-                            {
-                                tile->unit->transition = 1.0f;
-                                tile->unit->coord = tile->unit->path[0];
-                                GetMapTile(map, tile->unit->coord)->unit = tile->unit;
-
-                                tile->unit->transition = 0;
-                                arrdel(tile->unit->path, 0);
-
-                                tile->unit = 0;
-                            }
-                            else
-                            {
-                                v2 from = center;
-                                v2 dir = Vector2Subtract(OffsetToScreen(tile->offset), OffsetToScreen(tile->unit->path[0]));
-                                dir = Vector2Normalize(dir);
-
-                                v2 step = Vector2Scale(dir, tile->unit->transition * HEX_WIDTH * 2.0f);
-
-                                unitPos = Vector2Add(from, step);
-                            }
-                            
-                        }
-
-                        DrawRectangleV(unitPos, Vec2(20.0f, 30.0f), GREEN);
+                        arrput(unitsToDraw, tile->unit);
                     }
 
                     if(tile->showPath)
@@ -286,6 +267,20 @@ int main()
                         DrawCircleV(center, 30.0f, Fade(BLACK, 0.3f));
                     }
                 }
+            }
+
+            //////////////////// RENDERING UNITS //////////////////////////////////
+            int32 midCol = ScreenToOffset(Vec2(leftTopPixel.x + screenWidth / 2, leftTopPixel.y)).col;
+            int32 page = round((float)midCol / (float)map->width);
+
+            for(int32 i = 0; i < arrlen(unitsToDraw); i++)
+            {
+                game_unit *unit = unitsToDraw[i];
+                offset_coord drawCoord = unit->coord;
+                drawCoord.col += page * map->width;
+                v2 drawPos = OffsetToScreen(drawCoord);
+
+                DrawRectangleV(drawPos, Vec2(20.0f, 35.0f), GREEN);
             }
 
             ////// hex under mouse
@@ -297,7 +292,11 @@ int main()
 
             DrawFPS(10, 10);
 
+            DrawLine(screenWidth / 2, 0, screenWidth / 2, screenHeight, RED);
+
         EndDrawing();
+
+        arrfree(unitsToDraw);
         //----------------------------------------------------------------------------------
     }
 

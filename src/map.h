@@ -137,6 +137,20 @@ inline v2 OffsetToScreen(offset_coord o)
     return result;
 }
 
+inline offset_coord OffsetWrapAdjusted(offset_coord coord, Camera2D camera)
+{
+    offset_coord result = coord;
+
+    v2 topLeftPixel = Vector2Subtract(camera.target, camera.offset);
+    v2 screen = OffsetToScreen(coord);
+    v2 screenAdjusted = Vector2Add(screen, topLeftPixel);
+    result = ScreenToOffset(screenAdjusted);
+    result.row = coord.row;
+
+    return result;
+}
+
+
 struct path_node
 {
     offset_coord offset;
