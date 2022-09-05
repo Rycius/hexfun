@@ -97,7 +97,7 @@ inline float OffsetDistance(offset_coord a, offset_coord b)
 }
 
 
-inline offset_coord OffsetAdjusted(offset_coord coord, int32 mapWidth)
+inline offset_coord OffsetReal(offset_coord coord, int32 mapWidth)
 {
     offset_coord result = {0};
 
@@ -114,8 +114,8 @@ float Heuristic(offset_coord a, offset_coord b, int32 mapWidth, bool wrap)
 
     if(wrap)
     {
-        offset_coord aj = OffsetAdjusted(a, mapWidth);
-        offset_coord bj = OffsetAdjusted(b, mapWidth);
+        offset_coord aj = OffsetReal(a, mapWidth);
+        offset_coord bj = OffsetReal(b, mapWidth);
 
         if(abs(aj.col - bj.col) > mapWidth / 2)
         {
@@ -161,7 +161,7 @@ offset_coord *FindPath(game_map *map, offset_coord start, offset_coord end)
     if(!startTile || !endTile) return 0;
 
     path_node node = {0};
-    node.offset = start;
+    node.coord = start;
     node.tile = startTile;
     
     arrpush(pnList, node);
@@ -197,13 +197,14 @@ offset_coord *FindPath(game_map *map, offset_coord start, offset_coord end)
             offset_coord *path = 0;
             while(currNode->tile != startTile)
             {
-                arrpush(path, currNode->offset);
+                arrpush(path, currNode->coord);
                 currNode = currNode->cameFrom;
             }
 
             for(int32 i = arrlen(path) - 1; i > -1 ; i--)
             {
-                arrpush(result, path[i]);
+                offset_coord real = OffsetReal(path[i], map->width);
+                arrpush(result, real);
             }
 
             arrfree(path);
@@ -211,7 +212,7 @@ offset_coord *FindPath(game_map *map, offset_coord start, offset_coord end)
             break;
         }
 
-        offset_coord *neighborsOffsets = OffsetNeighbors(currNode->offset);
+        offset_coord *neighborsOffsets = OffsetNeighbors(currNode->coord);
 
         for(int32 i = 0; i < arrlen(neighborsOffsets); i++)
         {
@@ -248,10 +249,10 @@ offset_coord *FindPath(game_map *map, offset_coord start, offset_coord end)
             if(inOpenList == false)
             {
                 path_node neighborNode = {0};
-                neighborNode.offset = neighborsOffsets[i];
+                neighborNode.coord = neighborsOffsets[i];
                 neighborNode.cameFrom = currNode;
                 neighborNode.g = currNode->g + MoveCost(currNode->tile, neighborTile); // +cost to move from tile to other tile
-                neighborNode.h = Heuristic(neighborNode.offset, end, map->width, map->wrap);
+                neighborNode.h = Heuristic(neighborNode.coord, end, map->width, map->wrap);
                 neighborNode.f = neighborNode.g + neighborNode.h;
                 neighborNode.tile = neighborTile;
 
@@ -294,8 +295,8 @@ void InitMap(game_map *map, int32 width, int32 height, bool wrap)
         {
             map_tile tile = {0};
 
-            tile.offset.col = x;
-            tile.offset.row = y;
+            tile.coord.col = x;
+            tile.coord.row = y;
 
             tile.overlayColor = WHITE;
             // if(x == 0) 

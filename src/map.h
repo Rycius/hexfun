@@ -31,12 +31,12 @@ inline offset_coord AxialToOffset(axial_coord axial)
     return result;
 }
 
-inline axial_coord OffsetToAxial(offset_coord o)
+inline axial_coord OffsetToAxial(offset_coord coord)
 {
     axial_coord result = {0};
 
-    result.q = o.col - (o.row - (o.row & 1)) / 2;
-    result.r = o.row;
+    result.q = coord.col - (coord.row - (coord.row & 1)) / 2;
+    result.r = coord.row;
 
     return result;
 }
@@ -51,12 +51,12 @@ inline offset_coord CubeToOffset(cube_coord cube)
     return result;
 }
 
-inline cube_coord OffsetToCube(offset_coord o)
+inline cube_coord OffsetToCube(offset_coord coord)
 {
     cube_coord result = {0};
 
-    result.q = o.col - (o.row - (o.row & 1)) / 2;
-    result.r = o.row;
+    result.q = coord.col - (coord.row - (coord.row & 1)) / 2;
+    result.r = coord.row;
     result.s = -result.q - result.r;
 
     return result;
@@ -127,15 +127,16 @@ inline offset_coord ScreenToOffset(v2 pos)
     return result;
 }
 
-inline v2 OffsetToScreen(offset_coord o)
+inline v2 OffsetToScreen(offset_coord coord)
 {
     v2 result = {0};
 
-    result.x = HEX_SIZE * SQRT3 * (o.col + 0.5f * (o.row&1));
-    result.y = HEX_SIZE * 3.0f / 2.0f * o.row;
+    result.x = HEX_SIZE * SQRT3 * (coord.col + 0.5f * (coord.row&1));
+    result.y = HEX_SIZE * 3.0f / 2.0f * coord.row;
 
     return result;
 }
+
 
 inline offset_coord OffsetWrapAdjusted(offset_coord coord, Camera2D camera)
 {
@@ -153,7 +154,7 @@ inline offset_coord OffsetWrapAdjusted(offset_coord coord, Camera2D camera)
 
 struct path_node
 {
-    offset_coord offset;
+    offset_coord coord;
     float f;
     float g;
     float h;

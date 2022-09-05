@@ -75,7 +75,7 @@ int main()
 
     map_tile *unitTile = GetMapTile(map, Offset(5, 5));    
     unitTile->unit = (game_unit *)MemAlloc(sizeof(game_unit));
-    unitTile->unit->coord = unitTile->offset;
+    unitTile->unit->coord = unitTile->coord;
     
 
     int32 mapWidthInPixels = HEX_CENTRE_DIST_HOR * map->width + HEX_WIDTH / 2.0f;
@@ -229,26 +229,26 @@ int main()
             int32 heightToDraw = screenHeight / HEX_CENTRE_DIST_VERT + 3;
             int32 widthToDraw = screenWidth / HEX_CENTRE_DIST_HOR + 4;
             v2 leftTopPixel = Vector2Subtract(camera.target, camera.offset);
-            offset_coord offsetStart = ScreenToOffset(leftTopPixel);
-            offsetStart.col -=1;
-            if(offsetStart.row > 0) offsetStart.row -= 1;
-            offset_coord offsetEnd = offsetStart;
-            offsetEnd.col += widthToDraw;
-            offsetEnd.row += heightToDraw;            
+            offset_coord coordStart = ScreenToOffset(leftTopPixel);
+            coordStart.col -=1;
+            if(coordStart.row > 0) coordStart.row -= 1;
+            offset_coord coordEnd = coordStart;
+            coordEnd.col += widthToDraw;
+            coordEnd.row += heightToDraw;            
             
-            for(int32 y = offsetStart.row; y < offsetEnd.row; y++)
+            for(int32 y = coordStart.row; y < coordEnd.row; y++)
             {
-                for(int32 x = offsetStart.col; x < offsetEnd.col; x++)
+                for(int32 x = coordStart.col; x < coordEnd.col; x++)
                 {   
                     int32 maxX = map->wrap ? INT32_MAX : map->width;
                     int32 minX = map->wrap ? INT32_MIN : 0;
-                    offset_coord offset = Offset(Clamp(x, minX, maxX), Clamp(y, 0, map->height));
+                    offset_coord coord = Offset(Clamp(x, minX, maxX), Clamp(y, 0, map->height));
 
-                    map_tile *tile = GetMapTile(map, offset);
+                    map_tile *tile = GetMapTile(map, coord);
 
-                    const char *str = TextFormat("%d:%d", offset.row, offset.col);
+                    const char *str = TextFormat("%d:%d", coord.row, coord.col);
 
-                    v2 center = OffsetToScreen(offset);
+                    v2 center = OffsetToScreen(coord);
                     Assert(tile);
                     Assert(tile->texture.id >= 0);
                     DrawTexturePoly(tile->texture, center, hexPoints, texCoord, 7, tile->overlayColor);
@@ -276,8 +276,8 @@ int main()
             {
                 game_unit *unit = unitsToDraw[i];
                 offset_coord drawCoord = unit->coord;
-                v2 drawPos = OffsetToScreen(drawCoord);
                 drawCoord.col += page * map->width;
+                v2 drawPos = OffsetToScreen(drawCoord);
 
                 if(arrlen(unit->path) > 0)
                 {

@@ -124,7 +124,7 @@ struct game_unit
 
 struct map_tile
 {
-    offset_coord offset;
+    offset_coord coord;
     Texture texture;
     Color overlayColor;
     game_unit *unit;
