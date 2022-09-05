@@ -160,7 +160,7 @@ int main()
     camera.offset.y = 0.0f; 
 
     float cameraSpeed = 10.0f;
-    float cameraZoomSpeed = 2.0f;
+    float cameraZoomSpeed = 1.0f;
     float cameraZoomTarget = 1.0f;
 
     game_map *map = (game_map *)MemAlloc(sizeof(game_map));
