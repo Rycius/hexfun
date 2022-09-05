@@ -51,8 +51,8 @@ int main()
 
     // Initialization
     //--------------------------------------------------------------------------------------
-    const int32 screenWidth = 1920;
-    const int32 screenHeight = 1080;
+    const int32 screenWidth = 1600;
+    const int32 screenHeight = 900;
 
     InitWindow(screenWidth, screenHeight, "raylib");
 
@@ -272,13 +272,40 @@ int main()
             //////////////////// RENDERING UNITS //////////////////////////////////
             int32 midCol = ScreenToOffset(Vec2(leftTopPixel.x + screenWidth / 2, leftTopPixel.y)).col;
             int32 page = round((float)midCol / (float)map->width);
-
             for(int32 i = 0; i < arrlen(unitsToDraw); i++)
             {
                 game_unit *unit = unitsToDraw[i];
                 offset_coord drawCoord = unit->coord;
-                drawCoord.col += page * map->width;
                 v2 drawPos = OffsetToScreen(drawCoord);
+                drawCoord.col += page * map->width;
+
+                if(arrlen(unit->path) > 0)
+                {
+                    bool goNext = false;
+                    unit->transition += 0.01f;
+                    if(unit->transition > 1.0f)
+                    {
+                        unit->transition = 1.0f;
+                        goNext = true;
+                    }
+
+                    offset_coord next = unit->path[0];
+                    next.col += page * map->width;
+
+                    v2 nextPos = OffsetToScreen(next);
+
+                    drawPos = Vector2Lerp(drawPos, nextPos, unit->transition);
+
+                    if(goNext)
+                    {
+                        GetMapTile(map, unit->coord)->unit = 0;
+                        unit->coord = unit->path[0];
+                        unit->transition = 0.0f;
+                        GetMapTile(map, next)->showPath = false;
+                        GetMapTile(map, next)->unit = unit;
+                        arrdel(unit->path, 0);
+                    }
+                }
 
                 DrawRectangleV(drawPos, Vec2(20.0f, 35.0f), GREEN);
             }
@@ -290,9 +317,7 @@ int main()
 
             EndMode2D();
 
-            DrawFPS(10, 10);
-
-            DrawLine(screenWidth / 2, 0, screenWidth / 2, screenHeight, RED);
+            DrawFPS(10, 10);            
 
         EndDrawing();
 
