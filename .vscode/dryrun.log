@@ -1,13 +1,10 @@
 make.exe --dry-run --always-make --keep-going --print-directory
 make.exe: Entering directory 'c:/Users/rytisl/Documents/Raylib/hexfun'
 mingw32-make game
- 
 make[1]: Entering directory 'c:/Users/rytisl/Documents/Raylib/hexfun'
 make[1]: Leaving directory 'c:/Users/rytisl/Documents/Raylib/hexfun'
- 
-make[1]: *** No rule to make target 'main.cpp', needed by 'game'.
-
-make.exe: *** [Makefile:123: all] Error 2
-
 make.exe: Leaving directory 'c:/Users/rytisl/Documents/Raylib/hexfun'
  
+make[1]: *** No rule to make target 'main.cpp', needed by 'game'.
+make.exe: *** [Makefile:123: all] Error 2
+

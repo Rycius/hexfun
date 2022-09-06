@@ -35,9 +35,9 @@ bool ArrContainsOffset(offset_coord *arr, offset_coord coord)
     return result;
 }
 
-inline v2 *HexLine(v2 center, direction dir)
+inline v2 *HexEdgeLine(v2 center, direction dir)
 {
-    v2 *result = {0};
+    v2 *result = 0;
 
     v2 corner1 = {0};
     v2 corner2 = {0};
@@ -92,7 +92,7 @@ v2 *CityAreaLine(game_city *city)
 
     for(int32 i = 0; i < arrlen(city->area); i++)
     {
-        v2 dir = Vector2Normalize(Vector2Subtract(OffsetToScreen(city->area[i]), OffsetToScreen(city->coord)));
+        v2 offset = Vector2Subtract(OffsetToScreen(city->area[i]), OffsetToScreen(city->coord));
         offset_coord *neighbors = OffsetNeighbors(city->area[i]);
 
         for(int32 n = 0; n < arrlen(neighbors); n++)
@@ -100,7 +100,7 @@ v2 *CityAreaLine(game_city *city)
             if(neighbors[n].col == city->coord.col && neighbors[n].row == city->coord.row) continue;
             if(ArrContainsOffset(city->area, neighbors[n])) continue;
 
-            v2 *line = HexLine(Vector2Scale(dir, HEX_CENTRE_DIST_HOR), (direction)n);
+            v2 *line = HexEdgeLine(offset, (direction)n);
             v2 p1 = line[0];
             v2 p2 = line[1];
             arrpush(result, p1);
@@ -128,6 +128,96 @@ bool IsOnScreen(v2 pos, v2 dim, Camera2D camera)
     return result;
 }
 
+
+void AddUnit(game_player *player, offset_coord coord)
+{
+    map_tile *tile = GetMapTile(coord);
+    if(tile->unit != 0)
+    {
+        TraceLog(LOG_INFO, "Trying to add a unit on the tile where one already is. Player: %s", player->name);
+        return;
+    } 
+
+    if(arrlen(player->units) >= UNITS_PER_PLAYER_CAP - 1)
+    {
+        TraceLog(LOG_INFO, "Unit cap reached. Player: %s", player->name);
+        return;
+    }
+
+    game_unit unit = {0};
+    unit.coord = coord;
+    unit.movement = 2;
+    unit.movementLeft = 2;
+    arrpush(player->units, unit);
+    
+    tile->unit = &player->units[arrlen(player->units)-1];
+}
+
+bool CanPlaceCity(offset_coord coord)
+{
+    bool result = true;
+
+    map_tile *tile = GetMapTile(coord);
+
+    if(tile->city) result = false;
+    else result = tile->passable;
+
+    return result;
+}
+
+bool PlaceCity(game_player *player, offset_coord coord)
+{
+    bool result = false;
+
+    if(CanPlaceCity(coord))
+    {
+        if(arrlen(player->cities) >= CITIES_PER_PLAYER_CAP)
+        {
+            TraceLog(LOG_INFO, "Cities cap reached. Player: %s", player->name);
+            return false;
+        }
+
+        game_city city = {0};
+        city.coord = coord;
+        city.area = OffsetNeighbors(coord);
+        city.areaLine = CityAreaLine(&city);
+        city.owner = player;
+
+        arrpush(player->cities, city);
+        GetMapTile(coord)->city = &player->cities[arrlen(player->cities)-1];
+        result = true;
+    }
+
+    return result;
+}
+
+void AddTeritory(game_city *city, offset_coord coord)
+{
+    arrpush(city->area, coord);
+    arrfree(city->areaLine);
+    city->areaLine = CityAreaLine(city);
+}
+
+
+void AddPlayer(game_state *game, const char *name)
+{
+    game_player player = {0};
+    player.color = YELLOW; // TODO: needs to get it from list, different for every player
+    player.name = name;
+
+    arrpush(game->players, player);
+
+    arrsetcap(game->players[arrlen(game->players)-1].cities, CITIES_PER_PLAYER_CAP);
+    arrsetcap(game->players[arrlen(game->players)-1].units, UNITS_PER_PLAYER_CAP);
+}
+
+
+game_state *CreateGame()
+{
+    game_state *result = (game_state *)MemAlloc(sizeof(game_state));
+
+    return result;
+}
 
 int main() 
 {
@@ -163,14 +253,13 @@ int main()
     float cameraZoomSpeed = 1.0f;
     float cameraZoomTarget = 1.0f;
 
-    game_map *map = (game_map *)MemAlloc(sizeof(game_map));
-    InitMap(map, 44, 26, true);
-    GenerateTerrain(map);
+    Texture2D hexGrasslandTex = LoadTexture("../resources/hex_grassland.png");
+    Texture2D hexDesertTex = LoadTexture("../resources/hex_Desert.png");
+    Texture2D treesTex = LoadTexture("../resources/trees.png");
+    Texture2D warriorTex = LoadTexture("../resources/warrior.png");
 
-
-    map_tile *unitTile = GetMapTile(map, Offset(5, 5));    
-    unitTile->unit = (game_unit *)MemAlloc(sizeof(game_unit));
-    unitTile->unit->coord = unitTile->coord;
+    InitMap(44, 26, true);
+    GenerateTerrain();
     
 
     int32 mapWidthInPixels = HEX_CENTRE_DIST_HOR * map->width + HEX_WIDTH / 2.0f;
@@ -193,27 +282,23 @@ int main()
         arrput(texCoord, point);
     }
 
-    /////////////////////////// MAP SETUP ////////////////////////////////////
-    
+    /////////////////////////// GAME SETUP ////////////////////////////////////
 
-    offset_coord offsetUnderMouse = {0};
+    game_state *game = CreateGame();
+
+    AddPlayer(game, TextFormat("Player1"));
+
+    AddUnit(game->players, Offset(5, 5));
+    PlaceCity(game->players, Offset(10, 10));
+
+
 
     game_unit *selectedUnit = 0;
 
-
-    selectedUnit = (game_unit *)MemAlloc(sizeof(game_unit));
-    GetMapTile(map, Offset(5, 5))->unit = selectedUnit;
-    selectedUnit->coord = Offset(5, 5);
-    selectedUnit->movement = 2;
-    selectedUnit->movementLeft = 2;
-    
     game_unit **unitsToDraw = 0;
-
-
-    game_city *city = (game_city *)MemAlloc(sizeof(game_city));
-    city->coord = Offset(10, 10);
-    city->area = OffsetNeighbors(city->coord);
-    city->areaLine = CityAreaLine(city);
+    game_city **citiesToDraw = 0;
+    
+    offset_coord offsetUnderMouse = {0};
 
 
     //--------------------------------------------------------------------------------------
@@ -267,23 +352,23 @@ int main()
                 {
                     for(int32 i = 0; i < arrlen(selectedUnit->path); i++)
                     {
-                        map_tile *pathTile = GetMapTile(map, selectedUnit->path[i]);
+                        map_tile *pathTile = GetMapTile(selectedUnit->path[i]);
                         pathTile->showPath = false;
                     }
 
                     arrfree(selectedUnit->path);
                 }
                 
-                selectedUnit->path = FindPath(map, selectedUnit->coord, offsetUnderMouse);
+                selectedUnit->path = FindPath(selectedUnit->coord, offsetUnderMouse);
                 selectedUnit->moving = false;
 
                 for(int32 i = 0; i < arrlen(selectedUnit->path); i++)
                 {
-                    map_tile *pathTile = GetMapTile(map, selectedUnit->path[i]);
+                    map_tile *pathTile = GetMapTile(selectedUnit->path[i]);
                     pathTile->showPath = true;
                 }
 
-                if(selectedUnit->path && MoveCost(GetMapTile(map, selectedUnit->coord), GetMapTile(map, selectedUnit->path[0])) <= selectedUnit->movementLeft)
+                if(selectedUnit->path && MoveCost(GetMapTile(selectedUnit->coord), GetMapTile(selectedUnit->path[0])) <= selectedUnit->movementLeft)
                 {
                     selectedUnit->moving = true;
                 }
@@ -292,7 +377,7 @@ int main()
 
         if(IsMouseButtonPressed(0))
         {
-            map_tile *tile = GetMapTile(map, offsetUnderMouse);
+            map_tile *tile = GetMapTile(offsetUnderMouse);
 
             if(tile && tile->unit)
             {
@@ -300,7 +385,7 @@ int main()
                 {
                     for(int32 i = 0; i < arrlen(selectedUnit->path); i++)
                     {
-                        map_tile *pathTile = GetMapTile(map, selectedUnit->path[i]);
+                        map_tile *pathTile = GetMapTile(selectedUnit->path[i]);
                         pathTile->showPath = false;
                     }
                 }
@@ -311,7 +396,7 @@ int main()
                 {
                     for(int32 i = 0; i < arrlen(selectedUnit->path); i++)
                     {
-                        map_tile *pathTile = GetMapTile(map, selectedUnit->path[i]);
+                        map_tile *pathTile = GetMapTile(selectedUnit->path[i]);
                         pathTile->showPath = true;
                     }
                 }
@@ -320,7 +405,9 @@ int main()
 
         if(IsKeyPressed(KEY_R))
         {
-            selectedUnit->movementLeft = selectedUnit->movement;
+            //selectedUnit->movementLeft = selectedUnit->movement;
+            AddTeritory(game->players->cities, Offset(10, 12));
+            AddTeritory(game->players->cities, Offset(9, 13));
         }
         //----------------------------------------------------------------------------------
 
@@ -331,7 +418,7 @@ int main()
             ClearBackground(PINK);
             BeginMode2D(camera);
 
-            ////////////////////// RENDERING TILES AND THING ON THEM //////////////////////////////////
+            ////////////////////// RENDERING TILES AND THINGS ON THEM //////////////////////////////////
 
             int32 heightToDraw = screenHeight / HEX_CENTRE_DIST_VERT + 3;
             int32 widthToDraw = screenWidth / HEX_CENTRE_DIST_HOR + 4;
@@ -351,14 +438,36 @@ int main()
                     int32 minX = map->wrap ? INT32_MIN : 0;
                     offset_coord coord = Offset(Clamp(x, minX, maxX), Clamp(y, 0, map->height));
 
-                    map_tile *tile = GetMapTile(map, coord);
+                    map_tile *tile = GetMapTile(coord);
 
                     const char *str = TextFormat("%d:%d", coord.row, coord.col);
 
                     v2 center = OffsetToScreen(coord);
                     Assert(tile);
-                    Assert(tile->texture.id >= 0);
-                    DrawTexturePoly(tile->texture, center, hexPoints, texCoord, 7, tile->overlayColor);
+                    Texture2D tileTexture = {0};
+                    Color tileOverlayColor = WHITE;
+
+                    switch (tile->type)
+                    {
+                    case MAP_TILE_GRASSLAND:
+                        tileTexture = hexGrasslandTex;
+                        break;
+                    case MAP_TYLE_GRASSLAND_HILL:
+                        tileTexture = treesTex;
+                        break;
+                    case MAP_TILE_DESERT:
+                        tileTexture = hexDesertTex;
+                        break;
+                    case MAP_TILE_MOUNTAIN:
+                        tileTexture = hexGrasslandTex;
+                        break;
+                    default:
+                        break;
+                    }
+
+                    if(tile->passable == false) tileOverlayColor = RED;
+
+                    DrawTexturePoly(tileTexture, center, hexPoints, texCoord, 7, tileOverlayColor);
                     //DrawTexturePoly(treesTex, center, hexPoints, texCoord, 7, WHITE);
                     //DrawPoly(center, 6, HEX_SIZE, 0.0f, tile->color);
                     DrawPolyLines(center, 6, HEX_SIZE, 0.0f, BLACK);
@@ -366,7 +475,12 @@ int main()
 
                     if(tile->unit)
                     {
-                        arrput(unitsToDraw, tile->unit);
+                        arrpush(unitsToDraw, tile->unit);
+                    }
+
+                    if(tile->city)
+                    {
+                        arrpush(citiesToDraw, tile->city);
                     }
 
                     if(tile->showPath)
@@ -400,17 +514,17 @@ int main()
 
                     if(goNext)
                     {
-                        unit->movementLeft -= MoveCost(GetMapTile(map, unit->coord), GetMapTile(map, next));
-                        GetMapTile(map, unit->coord)->unit = 0;
+                        unit->movementLeft -= MoveCost(GetMapTile(unit->coord), GetMapTile(next));
+                        GetMapTile(unit->coord)->unit = 0;
                         unit->coord = unit->path[0];
                         unit->transition = 0.0f;
-                        GetMapTile(map, next)->showPath = false;
-                        GetMapTile(map, next)->unit = unit;
+                        GetMapTile(next)->showPath = false;
+                        GetMapTile(next)->unit = unit;
                         arrdel(unit->path, 0);
 
                         if(arrlen(unit->path) > 0)
                         {
-                            if(MoveCost(GetMapTile(map, unit->coord), GetMapTile(map, unit->path[0])) > unit->movementLeft)
+                            if(MoveCost(GetMapTile(unit->coord), GetMapTile(unit->path[0])) > unit->movementLeft)
                             {
                                 unit->moving = false;
                             }
@@ -422,20 +536,26 @@ int main()
                     }
                 }
 
-                DrawRectangleV(drawPos, Vec2(20.0f, 35.0f), GREEN);
+                DrawTexturePro(warriorTex, Rec(0, 0, warriorTex.width, warriorTex.height), Rec(drawPos.x, drawPos.y, warriorTex.width, warriorTex.height), Vec2(), 0.0f, WHITE);
+                //DrawRectangleV(drawPos, Vec2(20.0f, 35.0f), GREEN);
             }
             arrfree(unitsToDraw);
 
             ////////////// RENDERING CITIES ////////////////
-            v2 cityDrawPos = RealOffsetToScreen(city->coord, camera, map->width);
-            DrawCircleV(cityDrawPos, 30.0f, BLUE);
-            for(int32 i = 0; i < arrlen(city->areaLine); i+=2)
+            for(int32 i = 0; i < arrlen(citiesToDraw); i++)
             {
-                v2 linestart = Vector2Add(city->areaLine[i], cityDrawPos);
-                v2 lineEnd = Vector2Add(city->areaLine[i+1], cityDrawPos);
-                DrawLineEx(linestart, lineEnd, 3.0f, BLUE);
-                
+                game_city *city = citiesToDraw[i];
+                v2 cityDrawPos = RealOffsetToScreen(city->coord, camera, map->width);
+                DrawCircleV(cityDrawPos, 30.0f, BLUE);
+
+                for(int32 k = 0; k < arrlen(city->areaLine); k+=2)
+                {
+                    v2 linestart = Vector2Add(city->areaLine[k], cityDrawPos);
+                    v2 lineEnd = Vector2Add(city->areaLine[k+1], cityDrawPos);
+                    DrawLineEx(linestart, lineEnd, 3.0f, city->owner->color);
+                }
             }
+            arrfree(citiesToDraw);
 
             ////// hex under mouse
             v2 pos = OffsetToScreen(offsetUnderMouse);

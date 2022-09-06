@@ -9,7 +9,7 @@ mingw32-make game
 # This is free software: you are free to change and redistribute it.
 # There is NO WARRANTY, to the extent permitted by law.
 
-# Make data base, printed on Mon Sep 05 08:07:23 2022
+# Make data base, printed on Tue Sep 06 13:53:33 2022
 
 # Variables
 
@@ -98,7 +98,7 @@ LDFLAGS = -L. -L$(RAYLIB_RELEASE_PATH) -L$(RAYLIB_PATH)/src
 # automatic
 %F = $(notdir $%)
 # environment
-CHROME_CRASHPAD_PIPE_NAME = \\.\pipe\crashpad_12132_SXXUKRTCKRWMADPI
+CHROME_CRASHPAD_PIPE_NAME = \\.\pipe\crashpad_8976_MCAUWFIYQLNZINTB
 # makefile (from 'Makefile', line 44)
 PLATFORM_OS = WINDOWS
 # environment
@@ -120,7 +120,10 @@ PUBLIC = C:\Users\Public
 # environment
 VSCODE_AMD_ENTRYPOINT = vs/workbench/api/node/extensionHostProcess
 # environment
-VSCODE_CODE_CACHE_PATH = C:\Users\rytisl\AppData\Roaming\Code\CachedData\784b0177c56c607789f9638da7b6bf3230d47a8c
+VSCODE_CODE_CACHE_PATH = C:\Users\rytisl\AppData\Roaming\Code\CachedData\784b0177c 
+make[1]: *** No rule to make target 'main.cpp', needed by 'game'.  Stop.
+
+56c607789f9638da7b6bf3230d47a8c
 # environment
 APPLICATION_INSIGHTS_NO_DIAGNOSTIC_CHANNEL = 1
 # environment
@@ -230,7 +233,7 @@ LANG = C
 # environment
 PROCESSOR_LEVEL = 6
 # environment
-VSCODE_PID = 12132
+VSCODE_PID = 8976
 # environment
 USERDOMAIN_ROAMINGPROFILE = ABTPRODUCTS
 # variable set hash-table stats:
@@ -320,12 +323,10 @@ game: main.cpp
 # strcache performance: lookups = 32 / hit rate = 34%
 # hash-table stats:
 # Load=21/8192=0%, Rehash=0, Collisions=1/32=3%
-# Finished Make data base on Mon Sep 05 08:07:23 2022
+# Finished Make data base on Tue Sep 06 13:53:33 2022
 
 # make[1]: Leaving directory 'c:/Users/rytisl/Documents/Raylib/hexfun'
  
-make[1]: *** No rule to make target 'main.cpp', needed by 'game'.  Stop.
-
 make.exe: *** [Makefile:123: all] Error 2
 
 # GNU Make 4.2
@@ -335,7 +336,7 @@ make.exe: *** [Makefile:123: all] Error 2
 # This is free software: you are free to change and redistribute it.
 # There is NO WARRANTY, to the extent permitted by law.
 
-# Make data base, printed on Mon Sep 05 08:07:23 2022
+# Make data base, printed on Tue Sep 06 13:53:33 2022
 
 # Variables
 
@@ -424,7 +425,7 @@ LDFLAGS = -L. -L$(RAYLIB_RELEASE_PATH) -L$(RAYLIB_PATH)/src
 # automatic
 %F = $(notdir $%)
 # environment
-CHROME_CRASHPAD_PIPE_NAME = \\.\pipe\crashpad_12132_SXXUKRTCKRWMADPI
+CHROME_CRASHPAD_PIPE_NAME = \\.\pipe\crashpad_8976_MCAUWFIYQLNZINTB
 # makefile (from 'Makefile', line 44)
 PLATFORM_OS = WINDOWS
 # environment
@@ -556,7 +557,7 @@ LANG = C
 # environment
 PROCESSOR_LEVEL = 6
 # environment
-VSCODE_PID = 12132
+VSCODE_PID = 8976
 # environment
 USERDOMAIN_ROAMINGPROFILE = ABTPRODUCTS
 # variable set hash-table stats:
@@ -672,6 +673,6 @@ game: main.cpp
 # strcache performance: lookups = 33 / hit rate = 36%
 # hash-table stats:
 # Load=21/8192=0%, Rehash=0, Collisions=1/33=3%
-# Finished Make data base on Mon Sep 05 08:07:23 2022
+# Finished Make data base on Tue Sep 06 13:53:33 2022
 
  

@@ -1,6 +1,8 @@
 #include "map.h"
 
-map_tile *GetMapTile(game_map *map, offset_coord offset)
+game_map *map;
+
+map_tile *GetMapTile(offset_coord offset)
 {
     map_tile *result = 0;
 
@@ -60,7 +62,10 @@ offset_coord *OffsetNeighbors(offset_coord offset)
 
     for(int32 i = 0; i < DIR_COUNT; i++)
     {
-        arrput(result, OffsetNeighbor(offset, (direction)i));
+        offset_coord neighbor = OffsetNeighbor(offset, (direction)i);
+        if(neighbor.row < 0 || neighbor.row >= map->height) continue;
+        
+        arrput(result, neighbor);
     }
 
     return result;
@@ -97,30 +102,30 @@ inline float OffsetDistance(offset_coord a, offset_coord b)
 }
 
 
-inline offset_coord OffsetReal(offset_coord coord, int32 mapWidth)
+inline offset_coord OffsetReal(offset_coord coord)
 {
     offset_coord result = {0};
 
-    result.col = coord.col < 0 ? (mapWidth + (coord.col % mapWidth)) : (coord.col % mapWidth);
+    result.col = coord.col < 0 ? (map->width + (coord.col % map->width)) : (coord.col % map->width);
     result.row = coord.row;
 
     return result;
 }
 
 
-float Heuristic(offset_coord a, offset_coord b, int32 mapWidth, bool wrap)
+float Heuristic(offset_coord a, offset_coord b)
 {
     float result = 0.0f;
 
-    if(wrap)
+    if(map->wrap)
     {
-        offset_coord aj = OffsetReal(a, mapWidth);
-        offset_coord bj = OffsetReal(b, mapWidth);
+        offset_coord aj = OffsetReal(a);
+        offset_coord bj = OffsetReal(b);
 
-        if(abs(aj.col - bj.col) > mapWidth / 2)
+        if(abs(aj.col - bj.col) > map->width / 2)
         {
-            if(bj.col > aj.col) bj.col -= mapWidth;
-            else aj.col -= mapWidth;
+            if(bj.col > aj.col) bj.col -= map->width;
+            else aj.col -= map->width;
         }
         result = OffsetDistance(aj, bj);
     }
@@ -142,7 +147,7 @@ float MoveCost(map_tile *a, map_tile *b)
 }
 
 
-offset_coord *FindPath(game_map *map, offset_coord start, offset_coord end)
+offset_coord *FindPath(offset_coord start, offset_coord end)
 {
     offset_coord *result = 0;
 
@@ -155,8 +160,8 @@ offset_coord *FindPath(game_map *map, offset_coord start, offset_coord end)
     path_node **closedList = 0;
     arrsetcap(closedList, map->width*map->height);
 
-    map_tile *startTile = GetMapTile(map, start);
-    map_tile *endTile = GetMapTile(map, end);
+    map_tile *startTile = GetMapTile(start);
+    map_tile *endTile = GetMapTile(end);
 
     if(!startTile || !endTile) return 0;
 
@@ -203,7 +208,7 @@ offset_coord *FindPath(game_map *map, offset_coord start, offset_coord end)
 
             for(int32 i = arrlen(path) - 1; i > -1 ; i--)
             {
-                offset_coord real = OffsetReal(path[i], map->width);
+                offset_coord real = OffsetReal(path[i]);
                 arrpush(result, real);
             }
 
@@ -217,7 +222,7 @@ offset_coord *FindPath(game_map *map, offset_coord start, offset_coord end)
         for(int32 i = 0; i < arrlen(neighborsOffsets); i++)
         {
             //TraceLog(LOG_INFO, "Neighbor x:%d, y:%d", neighborsOffsets[i].col, neighborsOffsets[i].row);
-            map_tile *neighborTile = GetMapTile(map, neighborsOffsets[i]);
+            map_tile *neighborTile = GetMapTile(neighborsOffsets[i]);
              
             if(neighborTile == 0) continue;
             if(neighborTile->passable == false) continue;
@@ -252,7 +257,7 @@ offset_coord *FindPath(game_map *map, offset_coord start, offset_coord end)
                 neighborNode.coord = neighborsOffsets[i];
                 neighborNode.cameFrom = currNode;
                 neighborNode.g = currNode->g + MoveCost(currNode->tile, neighborTile); // +cost to move from tile to other tile
-                neighborNode.h = Heuristic(neighborNode.coord, end, map->width, map->wrap);
+                neighborNode.h = Heuristic(neighborNode.coord, end);
                 neighborNode.f = neighborNode.g + neighborNode.h;
                 neighborNode.tile = neighborTile;
 
@@ -280,8 +285,12 @@ offset_coord *FindPath(game_map *map, offset_coord start, offset_coord end)
 }
 
 
-void InitMap(game_map *map, int32 width, int32 height, bool wrap)
+void InitMap(int32 width, int32 height, bool wrap)
 {
+    if(map) free(map);
+    
+    map = (game_map *)MemAlloc(sizeof(game_map));
+
     arrsetcap(map->tiles, map->width * map->height);
     
     map->width = width;
@@ -298,60 +307,38 @@ void InitMap(game_map *map, int32 width, int32 height, bool wrap)
             tile.coord.col = x;
             tile.coord.row = y;
 
-            tile.overlayColor = WHITE;
-            // if(x == 0) 
-            //     tile.overlayColor = BLUE;
-            // else if(x == map->width - 1)
-            //     tile.overlayColor = YELLOW;
-
             arrput(map->tiles, tile);
         }
     }
 }
 
 
-void GenerateTerrain(game_map *map)
+void GenerateTerrain()
 {
-    Image hexGrasslandImg = LoadImage("../resources/hex_grassland.png");
-    Texture hexGrasslandTex = LoadTextureFromImage(hexGrasslandImg);
-
-    Image hexDesertImg = LoadImage("../resources/hex_Desert.png");
-    Texture hexDesertTex = LoadTextureFromImage(hexDesertImg);
-
-    Image treesImg = LoadImage("../resources/trees.png");
-    Texture treesTex = LoadTextureFromImage(treesImg);
-
-    UnloadImage(hexGrasslandImg);
-    UnloadImage(hexDesertImg);
-    UnloadImage(treesImg);
-
+    
     SetRandomSeed(GetTime());
 
     for(int32 y = 0; y < map->height; y++)
     {
         for(int32 x = 0; x < map->width; x++)
         {
-            map_tile *tile = GetMapTile(map, Offset(x, y));
+            map_tile *tile = GetMapTile(Offset(x, y));
 
-            tile->texture = hexGrasslandTex;
+            tile->type = MAP_TILE_GRASSLAND;
 
             int32 passRand = GetRandomValue(0, 10);
             tile->passable = passRand > 2 ? true : false;
-            if(tile->passable == false)
-            {
-                tile->overlayColor = RED;
-            }
-            else
+            if(tile->passable)
             {
                 int32 hillRand = GetRandomValue(0, 10);
                 tile->moveCost = hillRand > 3 ? 1.0f : 2.0f;
                 if(tile->moveCost > 1.0f)
-                    tile->texture = treesTex;
+                    tile->type = MAP_TYLE_GRASSLAND_HILL;
             }
 
             if(y > 5 && y < 10 && x > 3 && x < 10)
             {
-                tile->texture = hexDesertTex;
+                tile->type = MAP_TILE_DESERT;
             }
         }
     }

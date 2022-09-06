@@ -44,7 +44,8 @@
 #define HEX_TEXTURE_SIZE 512
 #define HEX_TEXTURE_HEX_SIZE (HEX_TEXTURE_SIZE / 2)
 
-
+#define UNITS_PER_PLAYER_CAP 100
+#define CITIES_PER_PLAYER_CAP 100
 
 inline v2 Vec2()
 {
@@ -92,7 +93,6 @@ inline int Clamp(int value, int min, int max)
 
 enum direction {DIR_EAST, DIR_NORTH_EAST, DIR_NORTH_WEST, DIR_WEST, DIR_SOUTH_WEST, DIR_SOUTH_EAST, DIR_COUNT};
 
-enum game_state {GAME_STATE_MAIN_MENU, GAME_STATE_PLAYERS_TURN, GAME_STATE_NPC_TURN, GAME_STATE_TURN_END};
 
 struct cube_coord
 {
@@ -113,6 +113,16 @@ struct offset_coord
     int32 row;
 };
 
+inline offset_coord Offset(int32 c, int32 r)
+{
+    offset_coord result = {0};
+
+    result.col = c;
+    result.row = r;
+
+    return result;
+}
+
 struct game_unit
 {
     offset_coord coord;
@@ -123,12 +133,32 @@ struct game_unit
     float movementLeft;
 };
 
+enum map_tile_type
+{
+    MAP_TILE_GRASSLAND,
+    MAP_TYLE_GRASSLAND_HILL,
+    MAP_TILE_DESERT,
+    MAP_TILE_MOUNTAIN,
+
+    MAP_TILE_COUNT
+};
+
+struct game_player;
+
+struct game_city
+{
+    game_player *owner;
+    offset_coord coord;
+    offset_coord *area;
+    v2 *areaLine;
+};
+
 struct map_tile
 {
     offset_coord coord;
-    Texture texture;
-    Color overlayColor;
+    map_tile_type type;
     game_unit *unit;
+    game_city *city;
     bool showPath;
     bool passable;
     float moveCost;
@@ -142,20 +172,16 @@ struct game_map
     bool wrap;
 };
 
-
-struct game_city
+struct game_player
 {
-    offset_coord coord;
-    offset_coord *area;
-    v2 *areaLine;
+    const char *name;
+    Color color;
+    game_unit *units;
+    game_city *cities;
 };
 
-inline offset_coord Offset(int32 c, int32 r)
+struct game_state
 {
-    offset_coord result = {0};
-
-    result.col = c;
-    result.row = r;
-
-    return result;
-}
+    game_map *map;
+    game_player *players;
+};
