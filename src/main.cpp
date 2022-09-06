@@ -406,8 +406,15 @@ int main()
         if(IsKeyPressed(KEY_R))
         {
             //selectedUnit->movementLeft = selectedUnit->movement;
-            AddTeritory(game->players->cities, Offset(10, 12));
-            AddTeritory(game->players->cities, Offset(9, 13));
+            //AddTeritory(game->players->cities, Offset(10, 12));
+            //AddTeritory(game->players->cities, Offset(9, 13));
+
+            offset_coord *ring = GetRing(game->players->cities->coord, 2);
+
+            for(int32 i = 0; i < arrlen(ring); i++)
+            {
+                AddTeritory(game->players->cities, ring[i]);
+            }
         }
         //----------------------------------------------------------------------------------
 

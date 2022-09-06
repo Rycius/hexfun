@@ -112,6 +112,66 @@ inline offset_coord OffsetReal(offset_coord coord)
     return result;
 }
 
+offset_coord OffsetDirDistance(offset_coord from, direction dir, int32 distance)
+{
+    offset_coord result = from;
+
+    offset_coord directionDifferences[2][6] = {
+        // even rows 
+        {Offset(+1,  0), Offset(0, -1), Offset(-1, -1), 
+         Offset(-1,  0), Offset(-1, +1), Offset(0, +1)},
+        // odd rows 
+        {Offset(+1,  0), Offset(+1, -1), Offset(0, -1), 
+         Offset(-1,  0), Offset(0, +1), Offset(+1, +1)},
+    };
+    
+
+    
+    for(int32 i = 0; i < distance; i++)
+    {
+        int32 parity = result.row & 1;
+        offset_coord diff = directionDifferences[parity][dir];
+
+        result.col += diff.col;
+        result.row += diff.row;;
+    }
+    
+
+    
+
+    return result;
+}
+
+offset_coord OffsetScale(offset_coord coord, float factor)
+{
+    offset_coord result = {0};
+
+    cube_coord cube = OffsetToCube(coord);
+
+    result = CubeToOffset(cube.q * factor, cube.r * factor, cube.s * factor);
+
+    return result;
+}
+
+offset_coord *GetRing(offset_coord center, int32 radius)
+{
+    offset_coord *result = 0;
+
+    offset_coord coord = OffsetDirDistance(center, (direction)4, radius);
+
+    for(int32 i = 0; i < DIR_COUNT; i++)
+    {
+        for(int32 k = 0; k < radius; k++)
+        {
+            arrpush(result, coord);
+            coord = OffsetNeighbor(coord, (direction)i);
+        }
+    }
+
+    return result;
+}
+
+//////////////////// PATH FINDING ////////////////////////
 
 float Heuristic(offset_coord a, offset_coord b)
 {

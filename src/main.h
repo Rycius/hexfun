@@ -123,6 +123,17 @@ inline offset_coord Offset(int32 c, int32 r)
     return result;
 }
 
+inline cube_coord Cube(int32 q, int32 r, int32 s)
+{
+    cube_coord result = {0};
+
+    result.q = q;
+    result.r = r;
+    result.s = s;
+
+    return result;
+}
+
 struct game_unit
 {
     offset_coord coord;

@@ -62,6 +62,20 @@ inline cube_coord OffsetToCube(offset_coord coord)
     return result;
 }
 
+inline offset_coord CubeToOffset(int32 q, int32 r, int32 s)
+{
+    offset_coord result = CubeToOffset(Cube(q, r, s));
+
+    return result;
+}
+
+inline cube_coord OffsetToCube(int32 q, int32 r)
+{
+    cube_coord result = OffsetToCube(Offset(q, r));
+
+    return result;
+}
+
 inline cube_coord CubeRound(float q, float r, float s)
 {
     cube_coord result = {0};
