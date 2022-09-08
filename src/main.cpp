@@ -146,6 +146,8 @@ void AddUnit(game_player *player, offset_coord coord)
 
     game_unit unit = {0};
     unit.coord = coord;
+    unit.type = UNIT_TYPE_WARRIOR;
+    unit.rec = Rec(Vec2(), Vec2(HEX_WIDTH*0.7f, HEX_HEIGHT*0.7f));
     unit.movement = 2;
     unit.movementLeft = 2;
     arrpush(player->units, unit);
@@ -199,7 +201,7 @@ void AddTeritory(game_city *city, offset_coord coord)
 }
 
 
-void AddPlayer(game_state *game, const char *name)
+void AddPlayer(game_data *game, const char *name)
 {
     game_player player = {0};
     player.color = YELLOW; // TODO: needs to get it from list, different for every player
@@ -212,9 +214,9 @@ void AddPlayer(game_state *game, const char *name)
 }
 
 
-game_state *CreateGame()
+game_data *CreateGame()
 {
-    game_state *result = (game_state *)MemAlloc(sizeof(game_state));
+    game_data *result = (game_data *)MemAlloc(sizeof(game_data));
 
     return result;
 }
@@ -250,13 +252,21 @@ int main()
     camera.offset.y = 0.0f; 
 
     float cameraSpeed = 10.0f;
-    float cameraZoomSpeed = 1.0f;
+    float cameraZoomStep = 2.0f;
+    float cameraZoomSpeed = 0.05f;
+    float cameraMaxZoom = 5.0f;
     float cameraZoomTarget = 1.0f;
+    
 
     Texture2D hexGrasslandTex = LoadTexture("../resources/hex_grassland.png");
     Texture2D hexDesertTex = LoadTexture("../resources/hex_Desert.png");
     Texture2D treesTex = LoadTexture("../resources/trees.png");
     Texture2D warriorTex = LoadTexture("../resources/warrior.png");
+
+    Image hexImg = GenImageColor(32, 32, WHITE);
+    Texture2D hexTex = LoadTextureFromImage(hexImg);
+    UnloadImage(hexImg);
+
 
     InitMap(44, 26, true);
     GenerateTerrain();
@@ -284,7 +294,7 @@ int main()
 
     /////////////////////////// GAME SETUP ////////////////////////////////////
 
-    game_state *game = CreateGame();
+    game_data *game = CreateGame();
 
     AddPlayer(game, TextFormat("Player1"));
 
@@ -321,10 +331,10 @@ int main()
 			// set the target to match, so that the camera maps the world space point under the cursor to the screen space point under the cursor at any zoom
 			camera.target = mouseWorldPos;
 			// zoom
-			cameraZoomTarget = Clamp(camera.zoom + wheel * cameraZoomSpeed, 1.0f, 10.f);
+			cameraZoomTarget = Clamp(camera.zoom + wheel * cameraZoomStep, 1.0f, cameraMaxZoom);
 		}
 
-        camera.zoom = Lerp(camera.zoom, cameraZoomTarget, 0.1f);
+        camera.zoom = Lerp(camera.zoom, cameraZoomTarget, cameraZoomSpeed);
 
         //////////////////////// CAMERA MOVEMENT ////////////////////////////
         if(IsKeyDown(KEY_W))
@@ -401,6 +411,10 @@ int main()
                     }
                 }
             }
+            else
+            {
+                selectedUnit = 0;
+            }
         }
 
         if(IsKeyPressed(KEY_R))
@@ -415,6 +429,8 @@ int main()
             {
                 AddTeritory(game->players->cities, ring[i]);
             }
+
+            arrfree(ring);
         }
         //----------------------------------------------------------------------------------
 
@@ -451,30 +467,55 @@ int main()
 
                     v2 center = OffsetToScreen(coord);
                     Assert(tile);
-                    Texture2D tileTexture = {0};
+                    
                     Color tileOverlayColor = WHITE;
 
-                    switch (tile->type)
+                    switch (tile->terrain.type)
                     {
-                    case MAP_TILE_GRASSLAND:
-                        tileTexture = hexGrasslandTex;
+                    case TERRAIN_TYPE_OCEAN:
+                        tileOverlayColor = (Color){0, 85, 195, 255};
                         break;
-                    case MAP_TYLE_GRASSLAND_HILL:
-                        tileTexture = treesTex;
+                    case TERRAIN_TYPE_LAKE:
+                        tileOverlayColor = (Color){100, 177, 255, 255};
                         break;
-                    case MAP_TILE_DESERT:
-                        tileTexture = hexDesertTex;
+                    case TERRAIN_TYPE_COAST:
+                        tileOverlayColor = (Color){90, 145, 210, 255};
+                    case TERRAIN_TYPE_GRASSLAND:
+                        tileOverlayColor = (Color){0, 155, 0, 255};
                         break;
-                    case MAP_TILE_MOUNTAIN:
-                        tileTexture = hexGrasslandTex;
+                    case TERRAIN_TYPE_PLAIN:
+                        tileOverlayColor = (Color){190, 215, 145, 255};
                         break;
+                    case TERRAIN_TYPE_DESERT:
+                        tileOverlayColor = (Color){235, 235, 190, 255};
+                        break;
+                        break;
+                    case TERRAIN_TYPE_TUNDRA:
+                        tileOverlayColor = (Color){200, 200, 200, 255};
+                        break;
+                    case TERRAIN_TYPE_SNOW:
+                        tileOverlayColor = (Color){225, 225, 225, 255};
+                        break;
+
                     default:
                         break;
                     }
 
-                    if(tile->passable == false) tileOverlayColor = RED;
+                    switch (tile->terrain.modifier)
+                    {
+                    case TERRAIN_MODIFIER_HILL:
+                        tileOverlayColor = (Color){180, 140, 100, 255};
+                        break;
+                    case TERRAIN_MODIFIER_MOUNTAIN:
+                        tileOverlayColor = RED;
+                        break;
+                    
+                    default:
+                        break;
+                    }
 
-                    DrawTexturePoly(tileTexture, center, hexPoints, texCoord, 7, tileOverlayColor);
+
+                    DrawTexturePoly(hexTex, center, hexPoints, texCoord, 7, tileOverlayColor);
                     //DrawTexturePoly(treesTex, center, hexPoints, texCoord, 7, WHITE);
                     //DrawPoly(center, 6, HEX_SIZE, 0.0f, tile->color);
                     DrawPolyLines(center, 6, HEX_SIZE, 0.0f, BLACK);
@@ -543,8 +584,14 @@ int main()
                     }
                 }
 
-                DrawTexturePro(warriorTex, Rec(0, 0, warriorTex.width, warriorTex.height), Rec(drawPos.x, drawPos.y, warriorTex.width, warriorTex.height), Vec2(), 0.0f, WHITE);
-                //DrawRectangleV(drawPos, Vec2(20.0f, 35.0f), GREEN);
+                Texture2D unitTexture = warriorTex;
+                Rectangle sourceRec = Rec(0, 0, warriorTex.width, warriorTex.height);
+                Rectangle destRec = Rec(drawPos, RecDim(unit->rec));
+                v2 origin = Vector2Scale(RecDim(unit->rec), 0.5f);
+                float rotation = 0.0f;
+                Color overlay = WHITE;
+
+                DrawTexturePro(unitTexture, sourceRec, destRec, origin, rotation, overlay);
             }
             arrfree(unitsToDraw);
 
@@ -567,9 +614,45 @@ int main()
             ////// hex under mouse
             v2 pos = OffsetToScreen(offsetUnderMouse);
 
-            DrawPoly(pos, 6, HEX_SIZE, 0.0f, BLUE);        
+            DrawPolyLinesEx(pos, 6, HEX_SIZE, 0.0f, 2.0f, GOLD);        
 
             EndMode2D();
+
+            /////////////////////////////// UI DRAWING ///////////////////////////////
+            if(selectedUnit)
+            {
+                float selectedUnitPanelWidth = screenWidth * 0.4f;
+                float selectedUnitPanelHeight = screenHeight * 0.2f;
+                Rectangle selectedUnitPanelRec = Rec(0, screenHeight - selectedUnitPanelHeight, selectedUnitPanelWidth, selectedUnitPanelHeight);
+                v2 selectedUnitPanelOrigin = Vec2();
+                float selectedUnitPanelRotation = 0.0f;
+                Color selectedUnitPanelColor = GRAY;
+                DrawRectanglePro(selectedUnitPanelRec, selectedUnitPanelOrigin, selectedUnitPanelRotation, selectedUnitPanelColor);
+
+
+                Font unitTypeTextFont = GetFontDefault();
+                const char *unitTypeTextText = "WARIOR";
+                v2 unitTypeTextPos = Vec2(selectedUnitPanelRec.x + 5.0f, selectedUnitPanelRec.y + 5.0f);
+                v2 unitTypeTextOrigin = Vec2();
+                float unitTypeTextRotation = 0.0f;
+                float unitTypeTextFontSize = 12.0f;
+                float unitTypeTextSpacing = 1.0f;
+                Color unitTypeTextColor = BLACK;
+
+                DrawTextPro(unitTypeTextFont, unitTypeTextText, unitTypeTextPos, unitTypeTextOrigin, unitTypeTextRotation, unitTypeTextFontSize, unitTypeTextSpacing, unitTypeTextColor);
+
+
+                Font movementTextFont = GetFontDefault();
+                const char *movementTextText = TextFormat("MOVEMENT: %.0f / %.0f", selectedUnit->movementLeft, selectedUnit->movement);
+                v2 movementTextPos = Vec2(unitTypeTextPos.x + 10.0f, selectedUnitPanelRec.y + unitTypeTextFontSize * 2.0f);
+                v2 movementTextOrigin = Vec2();
+                float movementTextRotation = 0.0f;
+                float movementTextFontSize = 12.0f;
+                float movementTextSpacing = 1.0f;
+                Color movementTextColor = BLACK;
+
+                DrawTextPro(movementTextFont, movementTextText, movementTextPos, movementTextOrigin, movementTextRotation, movementTextFontSize, movementTextSpacing, movementTextColor);
+            }
 
             DrawFPS(10, 10);            
 

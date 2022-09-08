@@ -384,7 +384,7 @@ void GenerateTerrain()
         {
             map_tile *tile = GetMapTile(Offset(x, y));
 
-            tile->type = MAP_TILE_GRASSLAND;
+            tile->terrain.type = TERRAIN_TYPE_GRASSLAND;
 
             int32 passRand = GetRandomValue(0, 10);
             tile->passable = passRand > 2 ? true : false;
@@ -393,12 +393,16 @@ void GenerateTerrain()
                 int32 hillRand = GetRandomValue(0, 10);
                 tile->moveCost = hillRand > 3 ? 1.0f : 2.0f;
                 if(tile->moveCost > 1.0f)
-                    tile->type = MAP_TYLE_GRASSLAND_HILL;
+                    tile->terrain.modifier = TERRAIN_MODIFIER_HILL;
+            }
+            else
+            {
+                tile->terrain.modifier = TERRAIN_MODIFIER_MOUNTAIN;
             }
 
             if(y > 5 && y < 10 && x > 3 && x < 10)
             {
-                tile->type = MAP_TILE_DESERT;
+                tile->terrain.type = TERRAIN_TYPE_DESERT;
             }
         }
     }

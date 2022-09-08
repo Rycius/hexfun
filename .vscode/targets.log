@@ -9,7 +9,7 @@ mingw32-make game
 # This is free software: you are free to change and redistribute it.
 # There is NO WARRANTY, to the extent permitted by law.
 
-# Make data base, printed on Tue Sep 06 13:53:33 2022
+# Make data base, printed on Wed Sep 07 14:21:28 2022
 
 # Variables
 
@@ -74,7 +74,10 @@ VSCODE_CWD = C:\Users\rytisl\Documents\Raylib\hexfun
 # default
 MAKE_HOST := i686-w64-mingw32
 # makefile (from 'Makefile', line 45)
-PATH := C:/raylib/w64devkit/bin:C:/raylib/w64devkit/bin;C:\WINDOWS\system32;C:\WINDOWS;C:\WINDOWS\System32\Wbem;C:\WINDOWS\System32\WindowsPowerShell\v1.0\;C:\WINDOWS\System32\OpenSSH\;C:\Program Files (x86)\ATI Technologies\ATI.ACE\Core-Static;C:\Program Files (x86)\AMD\ATI.ACE\Core-Static;C:\Program Files\dotnet\;C:\Program Files\Git\cmd;C:\Users\rytisl\AppData\Local\Microsoft\WindowsApps;C:\Users\rytisl\AppData\Local\Programs\Microsoft VS Code\bin;C:\raylib\w64devkit\bin;C:\Program Files\CMake\bin;C:\Users\rytisl\.dotnet\tools;C:\Program Files\Mono\bin;C:\Program Files\dotnet;C:\Program Files (x86)\MSBuild\12.0\Bin;C:\Program Files (x86)\MSBuild;;C:\Program Files\Radan Software\Radan\bin;C:\Program Files\Radan Software\Radan\nt\x64\bin;C:\Program Files\Radan Software\Radan\nt\i386\bin
+PATH := C:/raylib/w64devkit/bin:C:/raylib/w64devkit/bin;C:\WINDOWS\system32;C:\WINDOWS;C:\WINDOWS\System32\Wbem;C:\WINDOWS\System32\WindowsPowerShell\v1.0\;C:\WINDOWS\System32\OpenSSH\;C:\Program Files (x86)\ATI Technologies\ATI.ACE\Core-Static;C:\Program Files (x86)\AMD\ATI.ACE\Core-Static;C:\Program Files\dotnet\;C:\Program Files\Git\cmd;C:\Users\rytisl\AppData\Local\Microsoft\WindowsApps;C:\Users\rytisl\AppData\Local\Programs\Microsoft VS Code\bin;C:\raylib\w64devkit\bin;C:\Program Files\CMake\bin;C:\Users\rytisl\.dotnet\tools;C:\Program Files\Mono\bin;C:\Program Files\dotnet;C:\Program Files (x86)\MSBuild\12.0\Bin;C:\Program Files (x86)\MSBuild;;C:\Program Files\Radan Software\Rada 
+make[1]: *** No rule to make target 'main.cpp', needed by 'game'.  Stop.
+
+n\bin;C:\Program Files\Radan Software\Radan\nt\x64\bin;C:\Program Files\Radan Software\Radan\nt\i386\bin
 # environment
 COMMONPROGRAMW6432 = C:\Program Files\Common Files
 # makefile (from 'Makefile', line 29)
@@ -98,7 +101,7 @@ LDFLAGS = -L. -L$(RAYLIB_RELEASE_PATH) -L$(RAYLIB_PATH)/src
 # automatic
 %F = $(notdir $%)
 # environment
-CHROME_CRASHPAD_PIPE_NAME = \\.\pipe\crashpad_8976_MCAUWFIYQLNZINTB
+CHROME_CRASHPAD_PIPE_NAME = \\.\pipe\crashpad_9368_RCYJHWDUKJNGKZWQ
 # makefile (from 'Makefile', line 44)
 PLATFORM_OS = WINDOWS
 # environment
@@ -120,10 +123,7 @@ PUBLIC = C:\Users\Public
 # environment
 VSCODE_AMD_ENTRYPOINT = vs/workbench/api/node/extensionHostProcess
 # environment
-VSCODE_CODE_CACHE_PATH = C:\Users\rytisl\AppData\Roaming\Code\CachedData\784b0177c 
-make[1]: *** No rule to make target 'main.cpp', needed by 'game'.  Stop.
-
-56c607789f9638da7b6bf3230d47a8c
+VSCODE_CODE_CACHE_PATH = C:\Users\rytisl\AppData\Roaming\Code\CachedData\784b0177c56c607789f9638da7b6bf3230d47a8c
 # environment
 APPLICATION_INSIGHTS_NO_DIAGNOSTIC_CHANNEL = 1
 # environment
@@ -233,7 +233,7 @@ LANG = C
 # environment
 PROCESSOR_LEVEL = 6
 # environment
-VSCODE_PID = 8976
+VSCODE_PID = 9368
 # environment
 USERDOMAIN_ROAMINGPROFILE = ABTPRODUCTS
 # variable set hash-table stats:
@@ -246,7 +246,7 @@ USERDOMAIN_ROAMINGPROFILE = ABTPRODUCTS
 # Directories
 
 # . (key c:/Users/rytisl/Documents/Raylib/hexfun, mtime 1661239106ll): 12 files, no impossibilities.
-# src (key c:/Users/rytisl/Documents/Raylib/hexfun/src, mtime 1662036749ll): No files, no impossibilities so far.
+# src (key c:/Users/rytisl/Documents/Raylib/hexfun/src, mtime 1662534664ll): No files, no impossibilities so far.
 
 # 12 files, no impossibilities in 2 directories.
 
@@ -323,7 +323,7 @@ game: main.cpp
 # strcache performance: lookups = 32 / hit rate = 34%
 # hash-table stats:
 # Load=21/8192=0%, Rehash=0, Collisions=1/32=3%
-# Finished Make data base on Tue Sep 06 13:53:33 2022
+# Finished Make data base on Wed Sep 07 14:21:28 2022
 
 # make[1]: Leaving directory 'c:/Users/rytisl/Documents/Raylib/hexfun'
  
@@ -336,7 +336,7 @@ make.exe: *** [Makefile:123: all] Error 2
 # This is free software: you are free to change and redistribute it.
 # There is NO WARRANTY, to the extent permitted by law.
 
-# Make data base, printed on Tue Sep 06 13:53:33 2022
+# Make data base, printed on Wed Sep 07 14:21:28 2022
 
 # Variables
 
@@ -425,7 +425,7 @@ LDFLAGS = -L. -L$(RAYLIB_RELEASE_PATH) -L$(RAYLIB_PATH)/src
 # automatic
 %F = $(notdir $%)
 # environment
-CHROME_CRASHPAD_PIPE_NAME = \\.\pipe\crashpad_8976_MCAUWFIYQLNZINTB
+CHROME_CRASHPAD_PIPE_NAME = \\.\pipe\crashpad_9368_RCYJHWDUKJNGKZWQ
 # makefile (from 'Makefile', line 44)
 PLATFORM_OS = WINDOWS
 # environment
@@ -557,7 +557,7 @@ LANG = C
 # environment
 PROCESSOR_LEVEL = 6
 # environment
-VSCODE_PID = 8976
+VSCODE_PID = 9368
 # environment
 USERDOMAIN_ROAMINGPROFILE = ABTPRODUCTS
 # variable set hash-table stats:
@@ -570,7 +570,7 @@ USERDOMAIN_ROAMINGPROFILE = ABTPRODUCTS
 # Directories
 
 # . (key c:/Users/rytisl/Documents/Raylib/hexfun, mtime 1661239106ll): 12 files, no impossibilities.
-# src (key c:/Users/rytisl/Documents/Raylib/hexfun/src, mtime 1662036749ll): No files, no impossibilities so far.
+# src (key c:/Users/rytisl/Documents/Raylib/hexfun/src, mtime 1662534664ll): No files, no impossibilities so far.
 
 # 12 files, no impossibilities in 2 directories.
 
@@ -673,6 +673,6 @@ game: main.cpp
 # strcache performance: lookups = 33 / hit rate = 36%
 # hash-table stats:
 # Load=21/8192=0%, Rehash=0, Collisions=1/33=3%
-# Finished Make data base on Tue Sep 06 13:53:33 2022
+# Finished Make data base on Wed Sep 07 14:21:28 2022
 
  

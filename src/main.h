@@ -82,6 +82,41 @@ inline Rectangle Rec(float x, float y, float width, float height)
     return result;
 }
 
+inline Rectangle Rec(v2 pos, v2 size)
+{
+    Rectangle result = {pos.x, pos.y, size.x, size.y};
+
+    return result;
+}
+
+inline Rectangle Rec(v2 pos, float width, float height)
+{
+    Rectangle result = {pos.x, pos.y, width, height};
+
+    return result;
+}
+
+inline Rectangle Rec(float x, float y, v2 dim)
+{
+    Rectangle result = (Rectangle){x, y, dim.x, dim.y};
+
+    return result;
+}
+
+inline v2 RecPos(Rectangle rec)
+{
+    v2 result = {rec.x, rec.y};
+
+    return result;
+}
+
+inline v2 RecDim(Rectangle rec)
+{
+    v2 result = {rec.width, rec.height};
+
+    return result;
+}
+
 inline int Clamp(int value, int min, int max)
 {
     if(value < min) return min;
@@ -134,9 +169,13 @@ inline cube_coord Cube(int32 q, int32 r, int32 s)
     return result;
 }
 
+enum game_unit_type { UNIT_TYPE_WARRIOR, UNIT_TYPE_COUNT };
+
 struct game_unit
 {
     offset_coord coord;
+    game_unit_type type;
+    Rectangle rec;
     float transition;
     bool moving;
     offset_coord *path;
@@ -144,14 +183,40 @@ struct game_unit
     float movementLeft;
 };
 
-enum map_tile_type
+enum map_terrain_type
 {
-    MAP_TILE_GRASSLAND,
-    MAP_TYLE_GRASSLAND_HILL,
-    MAP_TILE_DESERT,
-    MAP_TILE_MOUNTAIN,
+    TERRAIN_TYPE_OCEAN,
+    TERRAIN_TYPE_LAKE,
+    TERRAIN_TYPE_COAST,
+    TERRAIN_TYPE_GRASSLAND,
+    TERRAIN_TYPE_PLAIN,
+    TERRAIN_TYPE_DESERT,
+    TERRAIN_TYPE_TUNDRA,
+    TERRAIN_TYPE_SNOW,
 
-    MAP_TILE_COUNT
+    TERRAIN_TYPE_COUNT
+};
+
+enum map_terrain_modifier
+{
+    TERRAIN_MODIFIER_NONE,
+    TERRAIN_MODIFIER_HILL,
+    TERRAIN_MODIFIER_MOUNTAIN,
+
+    TERRAIN_MODIFIER_COUNT
+};
+
+enum map_terrain_feature
+{
+    TERRAIN_FEATURE_FOREST,
+
+    TERRAIN_FEATURE_COUNT
+};
+
+struct map_terrain
+{
+    map_terrain_type type;
+    map_terrain_modifier modifier;
 };
 
 struct game_player;
@@ -167,7 +232,7 @@ struct game_city
 struct map_tile
 {
     offset_coord coord;
-    map_tile_type type;
+    map_terrain terrain;
     game_unit *unit;
     game_city *city;
     bool showPath;
@@ -191,7 +256,7 @@ struct game_player
     game_city *cities;
 };
 
-struct game_state
+struct game_data
 {
     game_map *map;
     game_player *players;
