@@ -372,10 +372,8 @@ void InitMap(int32 width, int32 height, bool wrap)
     }
 }
 
-
 void GenerateTerrain()
 {
-    
     SetRandomSeed(GetTime());
 
     for(int32 y = 0; y < map->height; y++)

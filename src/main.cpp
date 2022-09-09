@@ -11,7 +11,7 @@ v2 PointyHexCorner(v2 center, float size, int32 i)
     v2 result = Vec2();
 
     float angleDeg = 60.0f * i - 30.0f;
-    float angleRad = PI / 180 * angleDeg;
+    float angleRad = DEG2RAD * angleDeg;
 
     result.x = center.x + size * cosf(angleRad);
     result.y = center.y + size * sinf(angleRad);
@@ -200,6 +200,14 @@ void AddTeritory(game_city *city, offset_coord coord)
     city->areaLine = CityAreaLine(city);
 }
 
+void AddTeritory(game_city *city, offset_coord *area)
+{
+    for(int32 i = 0; i < arrlen(area); i++)
+    {
+        AddTeritory(city, area[i]);
+    }
+}
+
 
 void AddPlayer(game_data *game, const char *name)
 {
@@ -256,7 +264,7 @@ int main()
     float cameraZoomSpeed = 0.05f;
     float cameraMaxZoom = 5.0f;
     float cameraZoomTarget = 1.0f;
-    
+
 
     Texture2D hexGrasslandTex = LoadTexture("../resources/hex_grassland.png");
     Texture2D hexDesertTex = LoadTexture("../resources/hex_Desert.png");
@@ -425,10 +433,7 @@ int main()
 
             offset_coord *ring = GetRing(game->players->cities->coord, 2);
 
-            for(int32 i = 0; i < arrlen(ring); i++)
-            {
-                AddTeritory(game->players->cities, ring[i]);
-            }
+            AddTeritory(game->players->cities, ring);
 
             arrfree(ring);
         }
@@ -487,7 +492,7 @@ int main()
                         tileOverlayColor = (Color){190, 215, 145, 255};
                         break;
                     case TERRAIN_TYPE_DESERT:
-                        tileOverlayColor = (Color){235, 235, 190, 255};
+                        tileOverlayColor = (Color){235, 235, 150, 255};
                         break;
                         break;
                     case TERRAIN_TYPE_TUNDRA:

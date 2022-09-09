@@ -165,7 +165,6 @@ inline v2 RealOffsetToScreen(offset_coord coord, Camera2D camera, int32 mapWidth
     return result;
 }
 
-
 inline offset_coord OffsetWrapAdjusted(offset_coord coord, Camera2D camera)
 {
     offset_coord result = coord;
@@ -178,8 +177,6 @@ inline offset_coord OffsetWrapAdjusted(offset_coord coord, Camera2D camera)
 
     return result;
 }
-
-
 
 struct path_node
 {
