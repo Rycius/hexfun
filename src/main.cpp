@@ -115,6 +115,23 @@ v2 *CityAreaLine(game_city *city)
     return result;
 }
 
+void MarkCityVisabilityArea(game_city *city)
+{
+    for(int32 i = 0; i < arrlen(city->area); i++)
+    {
+        GetMapTile(city->area[i])->visability = TILE_VIS_FULL;
+
+        offset_coord *neighbors = OffsetNeighbors(city->area[i]);
+        for(int32 n = 0; n < arrlen(neighbors); n++)
+        {
+            if(!ArrContainsOffset(city->area, neighbors[n]))
+            {
+                GetMapTile(neighbors[n])->visability = TILE_VIS_FULL;
+            }
+        }
+    }
+}
+
 bool IsOnScreen(v2 pos, v2 dim, Camera2D camera)
 {
     bool result = false;
@@ -145,11 +162,13 @@ void AddUnit(game_player *player, offset_coord coord)
     }
 
     game_unit unit = {0};
+    unit.ownerId = player->id;
     unit.coord = coord;
     unit.type = UNIT_TYPE_WARRIOR;
     unit.rec = Rec(Vec2(), Vec2(HEX_WIDTH*0.7f, HEX_HEIGHT*0.7f));
     unit.movement = 2;
     unit.movementLeft = 2;
+    unit.visDistance = 1;
     arrpush(player->units, unit);
     
     tile->unit = &player->units[arrlen(player->units)-1];
@@ -183,7 +202,7 @@ bool PlaceCity(game_player *player, offset_coord coord)
         city.coord = coord;
         city.area = OffsetNeighbors(coord);
         city.areaLine = CityAreaLine(&city);
-        city.owner = player;
+        city.ownerId = player->id;
 
         arrpush(player->cities, city);
         GetMapTile(coord)->city = &player->cities[arrlen(player->cities)-1];
@@ -211,7 +230,12 @@ void AddTeritory(game_city *city, offset_coord *area)
 
 void AddPlayer(game_data *game, const char *name)
 {
+    static int32 id = 0;
+
+    if(arrlen(game->players) >= PLAYERS_CAP) return;
+
     game_player player = {0};
+    player.id = id++;
     player.color = YELLOW; // TODO: needs to get it from list, different for every player
     player.name = name;
 
@@ -225,6 +249,7 @@ void AddPlayer(game_data *game, const char *name)
 game_data *CreateGame()
 {
     game_data *result = (game_data *)MemAlloc(sizeof(game_data));
+    arrsetcap(result->players, PLAYERS_CAP);
 
     return result;
 }
@@ -305,9 +330,12 @@ int main()
     game_data *game = CreateGame();
 
     AddPlayer(game, TextFormat("Player1"));
+    AddPlayer(game, TextFormat("Player 2"));
 
     AddUnit(game->players, Offset(5, 5));
     PlaceCity(game->players, Offset(10, 10));
+
+    AddUnit(&game->players[1], Offset(6, 8));
 
 
 
@@ -318,7 +346,7 @@ int main()
     
     offset_coord offsetUnderMouse = {0};
 
-
+    game->playersTurn = game->players;
     //--------------------------------------------------------------------------------------
     // Main game loop
     while (!WindowShouldClose())    // Detect window close button or ESC key
@@ -427,15 +455,15 @@ int main()
 
         if(IsKeyPressed(KEY_R))
         {
-            //selectedUnit->movementLeft = selectedUnit->movement;
+            selectedUnit->movementLeft = selectedUnit->movement;
             //AddTeritory(game->players->cities, Offset(10, 12));
             //AddTeritory(game->players->cities, Offset(9, 13));
 
-            offset_coord *ring = GetRing(game->players->cities->coord, 2);
+            //offset_coord *ring = GetRing(game->players->cities->coord, 2);
 
-            AddTeritory(game->players->cities, ring);
+            //AddTeritory(game->players->cities, ring);
 
-            arrfree(ring);
+            //arrfree(ring);
         }
         //----------------------------------------------------------------------------------
 
@@ -501,7 +529,6 @@ int main()
                     case TERRAIN_TYPE_SNOW:
                         tileOverlayColor = (Color){225, 225, 225, 255};
                         break;
-
                     default:
                         break;
                     }
@@ -520,18 +547,12 @@ int main()
                     }
 
 
-                    DrawTexturePoly(hexTex, center, hexPoints, texCoord, 7, tileOverlayColor);
-                    //DrawTexturePoly(treesTex, center, hexPoints, texCoord, 7, WHITE);
-                    //DrawPoly(center, 6, HEX_SIZE, 0.0f, tile->color);
-                    DrawPolyLines(center, 6, HEX_SIZE, 0.0f, BLACK);
-                    DrawText(str, center.x - 10, center.y, 10, BLACK);
-
-                    if(tile->unit)
+                    if(tile->unit && ((tile->visability == TILE_VIS_FULL && tile->unit) || tile->unit->ownerId == game->playersTurn->id))
                     {
                         arrpush(unitsToDraw, tile->unit);
                     }
 
-                    if(tile->city)
+                    if(tile->city && (tile->visability > 0 || tile->city->ownerId == game->playersTurn->id))
                     {
                         arrpush(citiesToDraw, tile->city);
                     }
@@ -540,6 +561,27 @@ int main()
                     {
                         DrawCircleV(center, 30.0f, Fade(BLACK, 0.3f));
                     }
+
+
+                    if(tile->visability == TILE_VIS_NONE)
+                    {
+                        tileOverlayColor = GRAY;
+                    }
+                    else if(tile->visability == TILE_VIS_PARTIAL)
+                    {
+                        tileOverlayColor = ColorAlphaBlend(GRAY, tileOverlayColor, GRAY);
+                    }
+                    else
+                    {
+                        tile->visability = TILE_VIS_PARTIAL;
+                    }
+
+
+                    DrawTexturePoly(hexTex, center, hexPoints, texCoord, 7, tileOverlayColor);
+                    //DrawTexturePoly(treesTex, center, hexPoints, texCoord, 7, WHITE);
+                    //DrawPoly(center, 6, HEX_SIZE, 0.0f, tile->color);
+                    DrawPolyLines(center, 6, HEX_SIZE, 0.0f, BLACK);
+                    DrawText(str, center.x - 10, center.y, 10, BLACK);
                 }
             }
 
@@ -547,6 +589,23 @@ int main()
             for(int32 i = 0; i < arrlen(unitsToDraw); i++)
             {
                 game_unit *unit = unitsToDraw[i];
+                
+                if(unit->ownerId == game->playersTurn->id)
+                {
+                    // update visable tiles
+                    GetMapTile(unit->coord)->visability = TILE_VIS_FULL;
+                    for(int32 v = 0; v < unit->visDistance; v++)
+                    {
+                        offset_coord *ns = GetRing(unit->coord, v+1);
+                        for(int32 k = 0; k < arrlen(ns); k++)
+                        {
+                            GetMapTile(ns[k])->visability = TILE_VIS_FULL;
+                        }
+                        arrfree(ns);
+                    }
+
+                }
+
                 v2 drawPos = RealOffsetToScreen(unit->coord, camera, map->width);
 
                 if(arrlen(unit->path) > 0 && unit->moving)
@@ -604,6 +663,13 @@ int main()
             for(int32 i = 0; i < arrlen(citiesToDraw); i++)
             {
                 game_city *city = citiesToDraw[i];
+                game_player *owner = &game->players[city->ownerId];
+
+                if(owner->id == game->playersTurn->id)
+                {
+                    MarkCityVisabilityArea(city);
+                }
+
                 v2 cityDrawPos = RealOffsetToScreen(city->coord, camera, map->width);
                 DrawCircleV(cityDrawPos, 30.0f, BLUE);
 
@@ -611,7 +677,7 @@ int main()
                 {
                     v2 linestart = Vector2Add(city->areaLine[k], cityDrawPos);
                     v2 lineEnd = Vector2Add(city->areaLine[k+1], cityDrawPos);
-                    DrawLineEx(linestart, lineEnd, 3.0f, city->owner->color);
+                    DrawLineEx(linestart, lineEnd, 3.0f, owner->color);
                 }
             }
             arrfree(citiesToDraw);

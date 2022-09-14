@@ -47,6 +47,8 @@
 #define UNITS_PER_PLAYER_CAP 100
 #define CITIES_PER_PLAYER_CAP 100
 
+#define PLAYERS_CAP 20
+
 inline v2 Vec2()
 {
     v2 result = (v2){0.0f, 0.0f};
@@ -173,6 +175,7 @@ enum game_unit_type { UNIT_TYPE_WARRIOR, UNIT_TYPE_COUNT };
 
 struct game_unit
 {
+    int32 ownerId;
     offset_coord coord;
     game_unit_type type;
     Rectangle rec;
@@ -181,6 +184,7 @@ struct game_unit
     offset_coord *path;
     float movement;
     float movementLeft;
+    int32 visDistance;
 };
 
 enum map_terrain_type
@@ -223,10 +227,19 @@ struct game_player;
 
 struct game_city
 {
-    game_player *owner;
+    int32 ownerId;
     offset_coord coord;
     offset_coord *area;
     v2 *areaLine;
+};
+
+enum tile_visability
+{
+    TILE_VIS_NONE,
+    TILE_VIS_PARTIAL,
+    TILE_VIS_FULL,
+
+    TILE_VIS_COUNT
 };
 
 struct map_tile
@@ -238,6 +251,7 @@ struct map_tile
     bool showPath;
     bool passable;
     float moveCost;
+    tile_visability visability;
 };
 
 struct game_map
@@ -250,6 +264,7 @@ struct game_map
 
 struct game_player
 {
+    int32 id;
     const char *name;
     Color color;
     game_unit *units;
@@ -260,4 +275,5 @@ struct game_data
 {
     game_map *map;
     game_player *players;
+    game_player *playersTurn;
 };
