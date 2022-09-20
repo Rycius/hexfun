@@ -254,9 +254,45 @@ game_data *CreateGame()
     return result;
 }
 
+void UpdateCamera(Camera2D *camera, camera_settings *camSettings)
+{
+    ///////////////////////////// CAMERA ZOOM /////////////////////////////////
+    float wheel = GetMouseWheelMove();
+    if (wheel != 0)
+    {
+        // get the world point that is under the mouse
+        Vector2 mouseWorldPos = GetScreenToWorld2D(GetMousePosition(), *camera);
+        // set the offset_coord to where the mouse is
+        camera->offset = GetMousePosition();
+        // set the target to match, so that the camera maps the world space point under the cursor to the screen space point under the cursor at any zoom
+        camera->target = mouseWorldPos;
+        // zoom
+        camSettings->zoomTarget = Clamp(camera->zoom + wheel * camSettings->zoomStep, 1.0f, camSettings->maxZoom);
+    }
+
+    camera->zoom = Lerp(camera->zoom, camSettings->zoomTarget, camSettings->zoomSpeed);
+
+    //////////////////////// CAMERA MOVEMENT ////////////////////////////
+    if(IsKeyDown(KEY_W))
+    {
+        camera->target.y -= camSettings->speed; 
+    }                                                                       
+    if(IsKeyDown(KEY_S))
+    {
+        camera->target.y += camSettings->speed; 
+    }
+    if(IsKeyDown(KEY_A))
+    {
+        camera->target.x -= camSettings->speed; 
+    }
+    if(IsKeyDown(KEY_D))
+    {
+        camera->target.x += camSettings->speed; 
+    }
+}
+
 int main() 
 {
-
     // Image img = GenImageColor(HEX_TEXTURE_SIZE, HEX_TEXTURE_SIZE, Fade(WHITE, 0.0f));
 
     // v2 prevPoint = PointyHexCorner(Vec2(HEX_TEXTURE_SIZE/2, HEX_TEXTURE_SIZE/2), HEX_TEXTURE_HEX_SIZE, 0);
@@ -284,16 +320,18 @@ int main()
     camera.offset.x = 0.0f; 
     camera.offset.y = 0.0f; 
 
-    float cameraSpeed = 10.0f;
-    float cameraZoomStep = 2.0f;
-    float cameraZoomSpeed = 0.05f;
-    float cameraMaxZoom = 5.0f;
-    float cameraZoomTarget = 1.0f;
+    camera_settings camSettings = {
+        .speed = 10.0f,
+        .zoomStep = 2.0f,
+        .zoomSpeed = 0.05f,
+        .maxZoom = 5.0f,
+        .zoomTarget = 1.0f,
+    };
 
 
-    Texture2D hexGrasslandTex = LoadTexture("../resources/hex_grassland.png");
-    Texture2D hexDesertTex = LoadTexture("../resources/hex_Desert.png");
-    Texture2D treesTex = LoadTexture("../resources/trees.png");
+    // Texture2D hexGrasslandTex = LoadTexture("../resources/hex_grassland.png");
+    // Texture2D hexDesertTex = LoadTexture("../resources/hex_Desert.png");
+    // Texture2D treesTex = LoadTexture("../resources/trees.png");
     Texture2D warriorTex = LoadTexture("../resources/warrior.png");
 
     Image hexImg = GenImageColor(32, 32, WHITE);
@@ -301,12 +339,8 @@ int main()
     UnloadImage(hexImg);
 
 
-    InitMap(44, 26, true);
-    GenerateTerrain();
-    
-
-    int32 mapWidthInPixels = HEX_CENTRE_DIST_HOR * map->width + HEX_WIDTH / 2.0f;
-    int32 mapHeightInPixels = HEX_CENTRE_DIST_VERT * map->height + HEX_HEIGHT * 0.25f;
+    //int32 mapWidthInPixels = HEX_CENTRE_DIST_HOR * map->width + HEX_WIDTH / 2.0f;
+    //int32 mapHeightInPixels = HEX_CENTRE_DIST_VERT * map->height + HEX_HEIGHT * 0.25f;
 
 
     v2 *hexPoints = 0;
@@ -328,6 +362,11 @@ int main()
     /////////////////////////// GAME SETUP ////////////////////////////////////
 
     game_data *game = CreateGame();
+    game->state = GAME_STATE_PLAY;
+
+    InitMap(44, 26, true);
+    GenerateTerrain();
+
 
     AddPlayer(game, TextFormat("Player1"));
     AddPlayer(game, TextFormat("Player 2"));
@@ -351,45 +390,28 @@ int main()
     // Main game loop
     while (!WindowShouldClose())    // Detect window close button or ESC key
     {
+        switch (game->state)
+        {
+        case GAME_STATE_MAIN_MENU:
+        {
+            game->state = GAME_STATE_PLAY;
+        } break;
+        case GAME_STATE_PLAY:
+        {
+            UpdateCamera(&camera, &camSettings);
+        } break;
+        default:
+            break;
+        }
+
+
         // Update
         //----------------------------------------------------------------------------------
         offsetUnderMouse = ScreenToOffset(GetScreenToWorld2D(GetMousePosition(), camera));
    
         if(IsKeyPressed(KEY_F)) ToggleFullscreen();
-        ///////////////////////////// CAMERA ZOOM /////////////////////////////////
-        float wheel = GetMouseWheelMove();
-		if (wheel != 0)
-		{
-			// get the world point that is under the mouse
-			Vector2 mouseWorldPos = GetScreenToWorld2D(GetMousePosition(), camera);
-			// set the offset_coord to where the mouse is
-			camera.offset = GetMousePosition();
-			// set the target to match, so that the camera maps the world space point under the cursor to the screen space point under the cursor at any zoom
-			camera.target = mouseWorldPos;
-			// zoom
-			cameraZoomTarget = Clamp(camera.zoom + wheel * cameraZoomStep, 1.0f, cameraMaxZoom);
-		}
-
-        camera.zoom = Lerp(camera.zoom, cameraZoomTarget, cameraZoomSpeed);
-
-        //////////////////////// CAMERA MOVEMENT ////////////////////////////
-        if(IsKeyDown(KEY_W))
-        {
-            camera.target.y -= cameraSpeed; 
-        }
-        if(IsKeyDown(KEY_S))
-        {
-            camera.target.y += cameraSpeed; 
-        }
-        if(IsKeyDown(KEY_A))
-        {
-            camera.target.x -= cameraSpeed; 
-        }
-        if(IsKeyDown(KEY_D))
-        {
-            camera.target.x += cameraSpeed; 
-        }
-
+        
+        ///////////////////// UNIT SELECTION AND MOVEMENT ///////////////////////////////
         if(IsMouseButtonDown(1))
         {
             if(selectedUnit)

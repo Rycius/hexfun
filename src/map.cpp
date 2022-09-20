@@ -135,9 +135,6 @@ offset_coord OffsetDirDistance(offset_coord from, direction dir, int32 distance)
         result.col += diff.col;
         result.row += diff.row;;
     }
-    
-
-    
 
     return result;
 }

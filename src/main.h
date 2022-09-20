@@ -171,6 +171,17 @@ inline cube_coord Cube(int32 q, int32 r, int32 s)
     return result;
 }
 
+
+
+struct camera_settings
+{
+    float speed;
+    float zoomStep;
+    float zoomSpeed;
+    float maxZoom;
+    float zoomTarget;
+};
+
 enum game_unit_type { UNIT_TYPE_WARRIOR, UNIT_TYPE_COUNT };
 
 struct game_unit
@@ -271,9 +282,12 @@ struct game_player
     game_city *cities;
 };
 
+enum game_state { GAME_STATE_MAIN_MENU = 0, GAME_STATE_PLAY };
+
 struct game_data
 {
     game_map *map;
     game_player *players;
     game_player *playersTurn;
+    game_state state;
 };
