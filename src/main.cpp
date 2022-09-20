@@ -310,16 +310,18 @@ int main()
     const int32 screenWidth = 1600;
     const int32 screenHeight = 900;
 
-    InitWindow(screenWidth, screenHeight, "raylib");
+    InitWindow(screenWidth, screenHeight, "Codename: HexFun");
 
     SetTargetFPS(60);               // Set our game to run at 60 frames-per-second
 
 
-    Camera2D camera = {0};
-    camera.zoom = 1.0f;
-    camera.offset.x = 0.0f; 
-    camera.offset.y = 0.0f; 
-
+    Camera2D camera = {
+        .offset = Vec2(),
+        .target = Vec2(), 
+        .rotation = 0.0f,
+        .zoom = 1.0f,
+    }; 
+    
     camera_settings camSettings = {
         .speed = 10.0f,
         .zoomStep = 2.0f,
