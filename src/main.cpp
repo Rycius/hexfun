@@ -364,7 +364,7 @@ int main()
     /////////////////////////// GAME SETUP ////////////////////////////////////
 
     game_data *game = CreateGame();
-    game->state = GAME_STATE_PLAY;
+    game->state = GAME_STATE_MAIN_MENU;
 
     InitMap(44, 26, true);
     GenerateTerrain();
@@ -388,6 +388,16 @@ int main()
     offset_coord offsetUnderMouse = {0};
 
     game->playersTurn = game->players;
+
+    ///////////////////////////////// GUI //////////////////////////////////
+    GUISetup();
+    gui_element gameNameLabel = GUILabel("CODENAME: HEX FUN", Rec(10, 10, 600, 200)); 
+
+    GUIVertLayoutBegin(Vec2(10, 250), Vec2(500, 100));
+
+    gui_element continueGameButton = GUIButton("CONTINUE GAME");
+    gui_element newGameButton = GUIButton("NEW GAME");
+
     //--------------------------------------------------------------------------------------
     // Main game loop
     while (!WindowShouldClose())    // Detect window close button or ESC key
@@ -396,363 +406,378 @@ int main()
         {
         case GAME_STATE_MAIN_MENU:
         {
-            game->state = GAME_STATE_PLAY;
+            if(GUIProcessElement(continueGameButton))
+            {
+                game->state = GAME_STATE_PLAY;
+            }
+
+            if(GUIProcessElement(newGameButton))
+            {
+                TraceLog(LOG_INFO, "this new game menu ha ha");
+            }
+
+            BeginDrawing();
+            {
+                ClearBackground(RAYWHITE);
+                GUIDrawElement(gameNameLabel);
+                GUIDrawElement(continueGameButton);
+                GUIDrawElement(newGameButton);
+            }
+            EndDrawing();
+
+
         } break;
         case GAME_STATE_PLAY:
         {
             UpdateCamera(&camera, &camSettings);
-        } break;
-        default:
-            break;
-        }
 
-
-        // Update
-        //----------------------------------------------------------------------------------
-        offsetUnderMouse = ScreenToOffset(GetScreenToWorld2D(GetMousePosition(), camera));
-   
-        if(IsKeyPressed(KEY_F)) ToggleFullscreen();
-        
-        ///////////////////// UNIT SELECTION AND MOVEMENT ///////////////////////////////
-        if(IsMouseButtonDown(1))
-        {
-            if(selectedUnit)
+            // Update
+            //----------------------------------------------------------------------------------
+            offsetUnderMouse = ScreenToOffset(GetScreenToWorld2D(GetMousePosition(), camera));
+    
+            if(IsKeyPressed(KEY_F)) ToggleFullscreen();
+            
+            ///////////////////// UNIT SELECTION AND MOVEMENT ///////////////////////////////
+            if(IsMouseButtonDown(1))
             {
-                if(selectedUnit->path)
+                if(selectedUnit)
                 {
-                    for(int32 i = 0; i < arrlen(selectedUnit->path); i++)
+                    if(selectedUnit->path)
                     {
-                        map_tile *pathTile = GetMapTile(selectedUnit->path[i]);
-                        pathTile->showPath = false;
+                        for(int32 i = 0; i < arrlen(selectedUnit->path); i++)
+                        {
+                            map_tile *pathTile = GetMapTile(selectedUnit->path[i]);
+                            pathTile->showPath = false;
+                        }
+
+                        arrfree(selectedUnit->path);
                     }
+                    
+                    selectedUnit->path = FindPath(selectedUnit->coord, offsetUnderMouse);
+                    selectedUnit->moving = false;
 
-                    arrfree(selectedUnit->path);
-                }
-                
-                selectedUnit->path = FindPath(selectedUnit->coord, offsetUnderMouse);
-                selectedUnit->moving = false;
-
-                for(int32 i = 0; i < arrlen(selectedUnit->path); i++)
-                {
-                    map_tile *pathTile = GetMapTile(selectedUnit->path[i]);
-                    pathTile->showPath = true;
-                }
-
-                if(selectedUnit->path && MoveCost(GetMapTile(selectedUnit->coord), GetMapTile(selectedUnit->path[0])) <= selectedUnit->movementLeft)
-                {
-                    selectedUnit->moving = true;
-                }
-            }
-        }
-
-        if(IsMouseButtonPressed(0))
-        {
-            map_tile *tile = GetMapTile(offsetUnderMouse);
-
-            if(tile && tile->unit)
-            {
-                if(selectedUnit && selectedUnit->path)
-                {
-                    for(int32 i = 0; i < arrlen(selectedUnit->path); i++)
-                    {
-                        map_tile *pathTile = GetMapTile(selectedUnit->path[i]);
-                        pathTile->showPath = false;
-                    }
-                }
-
-                selectedUnit = tile->unit;
-
-                if(selectedUnit->path)
-                {
                     for(int32 i = 0; i < arrlen(selectedUnit->path); i++)
                     {
                         map_tile *pathTile = GetMapTile(selectedUnit->path[i]);
                         pathTile->showPath = true;
                     }
-                }
-            }
-            else
-            {
-                selectedUnit = 0;
-            }
-        }
 
-        if(IsKeyPressed(KEY_R))
-        {
-            selectedUnit->movementLeft = selectedUnit->movement;
-            //AddTeritory(game->players->cities, Offset(10, 12));
-            //AddTeritory(game->players->cities, Offset(9, 13));
-
-            //offset_coord *ring = GetRing(game->players->cities->coord, 2);
-
-            //AddTeritory(game->players->cities, ring);
-
-            //arrfree(ring);
-        }
-        //----------------------------------------------------------------------------------
-
-        // Draw
-        //----------------------------------------------------------------------------------
-        BeginDrawing();
-
-            ClearBackground(PINK);
-            BeginMode2D(camera);
-
-            ////////////////////// RENDERING TILES AND THINGS ON THEM //////////////////////////////////
-
-            int32 heightToDraw = screenHeight / HEX_CENTRE_DIST_VERT + 3;
-            int32 widthToDraw = screenWidth / HEX_CENTRE_DIST_HOR + 4;
-            v2 leftTopPixel = Vector2Subtract(camera.target, camera.offset);
-            offset_coord coordStart = ScreenToOffset(leftTopPixel);
-            coordStart.col -=1;
-            if(coordStart.row > 0) coordStart.row -= 1;
-            offset_coord coordEnd = coordStart;
-            coordEnd.col += widthToDraw;
-            coordEnd.row += heightToDraw;            
-            
-            for(int32 y = coordStart.row; y < coordEnd.row; y++)
-            {
-                for(int32 x = coordStart.col; x < coordEnd.col; x++)
-                {   
-                    int32 maxX = map->wrap ? INT32_MAX : map->width;
-                    int32 minX = map->wrap ? INT32_MIN : 0;
-                    offset_coord coord = Offset(Clamp(x, minX, maxX), Clamp(y, 0, map->height));
-
-                    map_tile *tile = GetMapTile(coord);
-
-                    const char *str = TextFormat("%d:%d", coord.row, coord.col);
-
-                    v2 center = OffsetToScreen(coord);
-                    Assert(tile);
-                    
-                    Color tileOverlayColor = WHITE;
-
-                    switch (tile->terrain.type)
+                    if(selectedUnit->path && MoveCost(GetMapTile(selectedUnit->coord), GetMapTile(selectedUnit->path[0])) <= selectedUnit->movementLeft)
                     {
-                    case TERRAIN_TYPE_OCEAN:
-                        tileOverlayColor = (Color){0, 85, 195, 255};
-                        break;
-                    case TERRAIN_TYPE_LAKE:
-                        tileOverlayColor = (Color){100, 177, 255, 255};
-                        break;
-                    case TERRAIN_TYPE_COAST:
-                        tileOverlayColor = (Color){90, 145, 210, 255};
-                    case TERRAIN_TYPE_GRASSLAND:
-                        tileOverlayColor = (Color){0, 155, 0, 255};
-                        break;
-                    case TERRAIN_TYPE_PLAIN:
-                        tileOverlayColor = (Color){190, 215, 145, 255};
-                        break;
-                    case TERRAIN_TYPE_DESERT:
-                        tileOverlayColor = (Color){235, 235, 150, 255};
-                        break;
-                        break;
-                    case TERRAIN_TYPE_TUNDRA:
-                        tileOverlayColor = (Color){200, 200, 200, 255};
-                        break;
-                    case TERRAIN_TYPE_SNOW:
-                        tileOverlayColor = (Color){225, 225, 225, 255};
-                        break;
-                    default:
-                        break;
+                        selectedUnit->moving = true;
                     }
-
-                    switch (tile->terrain.modifier)
-                    {
-                    case TERRAIN_MODIFIER_HILL:
-                        tileOverlayColor = (Color){180, 140, 100, 255};
-                        break;
-                    case TERRAIN_MODIFIER_MOUNTAIN:
-                        tileOverlayColor = RED;
-                        break;
-                    
-                    default:
-                        break;
-                    }
-
-
-                    if(tile->unit && ((tile->visability == TILE_VIS_FULL && tile->unit) || tile->unit->ownerId == game->playersTurn->id))
-                    {
-                        arrpush(unitsToDraw, tile->unit);
-                    }
-
-                    if(tile->city && (tile->visability > 0 || tile->city->ownerId == game->playersTurn->id))
-                    {
-                        arrpush(citiesToDraw, tile->city);
-                    }
-
-                    if(tile->showPath)
-                    {
-                        DrawCircleV(center, 30.0f, Fade(BLACK, 0.3f));
-                    }
-
-
-                    if(tile->visability == TILE_VIS_NONE)
-                    {
-                        tileOverlayColor = GRAY;
-                    }
-                    else if(tile->visability == TILE_VIS_PARTIAL)
-                    {
-                        tileOverlayColor = ColorAlphaBlend(GRAY, tileOverlayColor, GRAY);
-                    }
-                    else
-                    {
-                        tile->visability = TILE_VIS_PARTIAL;
-                    }
-
-
-                    DrawTexturePoly(hexTex, center, hexPoints, texCoord, 7, tileOverlayColor);
-                    //DrawTexturePoly(treesTex, center, hexPoints, texCoord, 7, WHITE);
-                    //DrawPoly(center, 6, HEX_SIZE, 0.0f, tile->color);
-                    DrawPolyLines(center, 6, HEX_SIZE, 0.0f, BLACK);
-                    DrawText(str, center.x - 10, center.y, 10, BLACK);
                 }
             }
 
-            //////////////////// RENDERING UNITS //////////////////////////////////
-            for(int32 i = 0; i < arrlen(unitsToDraw); i++)
+            if(IsMouseButtonPressed(0))
             {
-                game_unit *unit = unitsToDraw[i];
-                
-                if(unit->ownerId == game->playersTurn->id)
+                map_tile *tile = GetMapTile(offsetUnderMouse);
+
+                if(tile && tile->unit)
                 {
-                    // update visable tiles
-                    GetMapTile(unit->coord)->visability = TILE_VIS_FULL;
-                    for(int32 v = 0; v < unit->visDistance; v++)
+                    if(selectedUnit && selectedUnit->path)
                     {
-                        offset_coord *ns = GetRing(unit->coord, v+1);
-                        for(int32 k = 0; k < arrlen(ns); k++)
+                        for(int32 i = 0; i < arrlen(selectedUnit->path); i++)
                         {
-                            GetMapTile(ns[k])->visability = TILE_VIS_FULL;
+                            map_tile *pathTile = GetMapTile(selectedUnit->path[i]);
+                            pathTile->showPath = false;
                         }
-                        arrfree(ns);
                     }
 
+                    selectedUnit = tile->unit;
+
+                    if(selectedUnit->path)
+                    {
+                        for(int32 i = 0; i < arrlen(selectedUnit->path); i++)
+                        {
+                            map_tile *pathTile = GetMapTile(selectedUnit->path[i]);
+                            pathTile->showPath = true;
+                        }
+                    }
+                }
+                else
+                {
+                    selectedUnit = 0;
+                }
+            }
+
+            if(IsKeyPressed(KEY_R))
+            {
+                selectedUnit->movementLeft = selectedUnit->movement;
+                //AddTeritory(game->players->cities, Offset(10, 12));
+                //AddTeritory(game->players->cities, Offset(9, 13));
+
+                //offset_coord *ring = GetRing(game->players->cities->coord, 2);
+
+                //AddTeritory(game->players->cities, ring);
+
+                //arrfree(ring);
+            }
+            //----------------------------------------------------------------------------------
+
+            // Draw
+            //----------------------------------------------------------------------------------
+            BeginDrawing();
+
+                ClearBackground(PINK);
+                BeginMode2D(camera);
+
+                ////////////////////// RENDERING TILES AND THINGS ON THEM //////////////////////////////////
+
+                int32 heightToDraw = screenHeight / HEX_CENTRE_DIST_VERT + 3;
+                int32 widthToDraw = screenWidth / HEX_CENTRE_DIST_HOR + 4;
+                v2 leftTopPixel = Vector2Subtract(camera.target, camera.offset);
+                offset_coord coordStart = ScreenToOffset(leftTopPixel);
+                coordStart.col -=1;
+                if(coordStart.row > 0) coordStart.row -= 1;
+                offset_coord coordEnd = coordStart;
+                coordEnd.col += widthToDraw;
+                coordEnd.row += heightToDraw;            
+                
+                for(int32 y = coordStart.row; y < coordEnd.row; y++)
+                {
+                    for(int32 x = coordStart.col; x < coordEnd.col; x++)
+                    {   
+                        int32 maxX = map->wrap ? INT32_MAX : map->width;
+                        int32 minX = map->wrap ? INT32_MIN : 0;
+                        offset_coord coord = Offset(Clamp(x, minX, maxX), Clamp(y, 0, map->height));
+
+                        map_tile *tile = GetMapTile(coord);
+
+                        const char *str = TextFormat("%d:%d", coord.row, coord.col);
+
+                        v2 center = OffsetToScreen(coord);
+                        Assert(tile);
+                        
+                        Color tileOverlayColor = WHITE;
+
+                        switch (tile->terrain.type)
+                        {
+                        case TERRAIN_TYPE_OCEAN:
+                            tileOverlayColor = (Color){0, 85, 195, 255};
+                            break;
+                        case TERRAIN_TYPE_LAKE:
+                            tileOverlayColor = (Color){100, 177, 255, 255};
+                            break;
+                        case TERRAIN_TYPE_COAST:
+                            tileOverlayColor = (Color){90, 145, 210, 255};
+                        case TERRAIN_TYPE_GRASSLAND:
+                            tileOverlayColor = (Color){0, 155, 0, 255};
+                            break;
+                        case TERRAIN_TYPE_PLAIN:
+                            tileOverlayColor = (Color){190, 215, 145, 255};
+                            break;
+                        case TERRAIN_TYPE_DESERT:
+                            tileOverlayColor = (Color){235, 235, 150, 255};
+                            break;
+                            break;
+                        case TERRAIN_TYPE_TUNDRA:
+                            tileOverlayColor = (Color){200, 200, 200, 255};
+                            break;
+                        case TERRAIN_TYPE_SNOW:
+                            tileOverlayColor = (Color){225, 225, 225, 255};
+                            break;
+                        default:
+                            break;
+                        }
+
+                        switch (tile->terrain.modifier)
+                        {
+                        case TERRAIN_MODIFIER_HILL:
+                            tileOverlayColor = (Color){180, 140, 100, 255};
+                            break;
+                        case TERRAIN_MODIFIER_MOUNTAIN:
+                            tileOverlayColor = RED;
+                            break;
+                        
+                        default:
+                            break;
+                        }
+
+
+                        if(tile->unit && ((tile->visability == TILE_VIS_FULL && tile->unit) || tile->unit->ownerId == game->playersTurn->id))
+                        {
+                            arrpush(unitsToDraw, tile->unit);
+                        }
+
+                        if(tile->city && (tile->visability > 0 || tile->city->ownerId == game->playersTurn->id))
+                        {
+                            arrpush(citiesToDraw, tile->city);
+                        }
+
+                        if(tile->showPath)
+                        {
+                            DrawCircleV(center, 30.0f, Fade(BLACK, 0.3f));
+                        }
+
+
+                        if(tile->visability == TILE_VIS_NONE)
+                        {
+                            tileOverlayColor = GRAY;
+                        }
+                        else if(tile->visability == TILE_VIS_PARTIAL)
+                        {
+                            tileOverlayColor = ColorAlphaBlend(GRAY, tileOverlayColor, GRAY);
+                        }
+                        else
+                        {
+                            tile->visability = TILE_VIS_PARTIAL;
+                        }
+
+
+                        DrawTexturePoly(hexTex, center, hexPoints, texCoord, 7, tileOverlayColor);
+                        //DrawTexturePoly(treesTex, center, hexPoints, texCoord, 7, WHITE);
+                        //DrawPoly(center, 6, HEX_SIZE, 0.0f, tile->color);
+                        DrawPolyLines(center, 6, HEX_SIZE, 0.0f, BLACK);
+                        DrawText(str, center.x - 10, center.y, 10, BLACK);
+                    }
                 }
 
-                v2 drawPos = RealOffsetToScreen(unit->coord, camera, map->width);
-
-                if(arrlen(unit->path) > 0 && unit->moving)
+                //////////////////// RENDERING UNITS //////////////////////////////////
+                for(int32 i = 0; i < arrlen(unitsToDraw); i++)
                 {
-                    bool goNext = false;
-                    unit->transition += 0.01f;
-                    if(unit->transition > 1.0f)
+                    game_unit *unit = unitsToDraw[i];
+                    
+                    if(unit->ownerId == game->playersTurn->id)
                     {
-                        unit->transition = 1.0f;
-                        goNext = true;
+                        // update visable tiles
+                        GetMapTile(unit->coord)->visability = TILE_VIS_FULL;
+                        for(int32 v = 0; v < unit->visDistance; v++)
+                        {
+                            offset_coord *ns = GetRing(unit->coord, v+1);
+                            for(int32 k = 0; k < arrlen(ns); k++)
+                            {
+                                GetMapTile(ns[k])->visability = TILE_VIS_FULL;
+                            }
+                            arrfree(ns);
+                        }
+
                     }
 
-                    offset_coord next = unit->path[0];
+                    v2 drawPos = RealOffsetToScreen(unit->coord, camera, map->width);
 
-                    v2 nextPos = RealOffsetToScreen(next, camera, map->width);
-
-                    drawPos = Vector2Lerp(drawPos, nextPos, unit->transition);
-
-                    if(goNext)
+                    if(arrlen(unit->path) > 0 && unit->moving)
                     {
-                        unit->movementLeft -= MoveCost(GetMapTile(unit->coord), GetMapTile(next));
-                        GetMapTile(unit->coord)->unit = 0;
-                        unit->coord = unit->path[0];
-                        unit->transition = 0.0f;
-                        GetMapTile(next)->showPath = false;
-                        GetMapTile(next)->unit = unit;
-                        arrdel(unit->path, 0);
-
-                        if(arrlen(unit->path) > 0)
+                        bool goNext = false;
+                        unit->transition += 0.01f;
+                        if(unit->transition > 1.0f)
                         {
-                            if(MoveCost(GetMapTile(unit->coord), GetMapTile(unit->path[0])) > unit->movementLeft)
+                            unit->transition = 1.0f;
+                            goNext = true;
+                        }
+
+                        offset_coord next = unit->path[0];
+
+                        v2 nextPos = RealOffsetToScreen(next, camera, map->width);
+
+                        drawPos = Vector2Lerp(drawPos, nextPos, unit->transition);
+
+                        if(goNext)
+                        {
+                            unit->movementLeft -= MoveCost(GetMapTile(unit->coord), GetMapTile(next));
+                            GetMapTile(unit->coord)->unit = 0;
+                            unit->coord = unit->path[0];
+                            unit->transition = 0.0f;
+                            GetMapTile(next)->showPath = false;
+                            GetMapTile(next)->unit = unit;
+                            arrdel(unit->path, 0);
+
+                            if(arrlen(unit->path) > 0)
+                            {
+                                if(MoveCost(GetMapTile(unit->coord), GetMapTile(unit->path[0])) > unit->movementLeft)
+                                {
+                                    unit->moving = false;
+                                }
+                            }
+                            else
                             {
                                 unit->moving = false;
                             }
                         }
-                        else
-                        {
-                            unit->moving = false;
-                        }
+                    }
+
+                    Texture2D unitTexture = warriorTex;
+                    Rectangle sourceRec = Rec(0, 0, warriorTex.width, warriorTex.height);
+                    Rectangle destRec = Rec(drawPos, RecDim(unit->rec));
+                    v2 origin = Vector2Scale(RecDim(unit->rec), 0.5f);
+                    float rotation = 0.0f;
+                    Color overlay = WHITE;
+
+                    DrawTexturePro(unitTexture, sourceRec, destRec, origin, rotation, overlay);
+                }
+                arrfree(unitsToDraw);
+
+                ////////////// RENDERING CITIES ////////////////
+                for(int32 i = 0; i < arrlen(citiesToDraw); i++)
+                {
+                    game_city *city = citiesToDraw[i];
+                    game_player *owner = &game->players[city->ownerId];
+
+                    if(owner->id == game->playersTurn->id)
+                    {
+                        MarkCityVisabilityArea(city);
+                    }
+
+                    v2 cityDrawPos = RealOffsetToScreen(city->coord, camera, map->width);
+                    DrawCircleV(cityDrawPos, 30.0f, BLUE);
+
+                    for(int32 k = 0; k < arrlen(city->areaLine); k+=2)
+                    {
+                        v2 linestart = Vector2Add(city->areaLine[k], cityDrawPos);
+                        v2 lineEnd = Vector2Add(city->areaLine[k+1], cityDrawPos);
+                        DrawLineEx(linestart, lineEnd, 3.0f, owner->color);
                     }
                 }
+                arrfree(citiesToDraw);
 
-                Texture2D unitTexture = warriorTex;
-                Rectangle sourceRec = Rec(0, 0, warriorTex.width, warriorTex.height);
-                Rectangle destRec = Rec(drawPos, RecDim(unit->rec));
-                v2 origin = Vector2Scale(RecDim(unit->rec), 0.5f);
-                float rotation = 0.0f;
-                Color overlay = WHITE;
+                ////// hex under mouse
+                v2 pos = OffsetToScreen(offsetUnderMouse);
 
-                DrawTexturePro(unitTexture, sourceRec, destRec, origin, rotation, overlay);
-            }
-            arrfree(unitsToDraw);
+                DrawPolyLinesEx(pos, 6, HEX_SIZE, 0.0f, 2.0f, GOLD);        
 
-            ////////////// RENDERING CITIES ////////////////
-            for(int32 i = 0; i < arrlen(citiesToDraw); i++)
-            {
-                game_city *city = citiesToDraw[i];
-                game_player *owner = &game->players[city->ownerId];
+                EndMode2D();
 
-                if(owner->id == game->playersTurn->id)
+                /////////////////////////////// UI DRAWING ///////////////////////////////
+                if(selectedUnit)
                 {
-                    MarkCityVisabilityArea(city);
+                    float selectedUnitPanelWidth = screenWidth * 0.4f;
+                    float selectedUnitPanelHeight = screenHeight * 0.2f;
+                    Rectangle selectedUnitPanelRec = Rec(0, screenHeight - selectedUnitPanelHeight, selectedUnitPanelWidth, selectedUnitPanelHeight);
+                    v2 selectedUnitPanelOrigin = Vec2();
+                    float selectedUnitPanelRotation = 0.0f;
+                    Color selectedUnitPanelColor = GRAY;
+                    DrawRectanglePro(selectedUnitPanelRec, selectedUnitPanelOrigin, selectedUnitPanelRotation, selectedUnitPanelColor);
+
+
+                    Font unitTypeTextFont = GetFontDefault();
+                    const char *unitTypeTextText = "WARIOR";
+                    v2 unitTypeTextPos = Vec2(selectedUnitPanelRec.x + 5.0f, selectedUnitPanelRec.y + 5.0f);
+                    v2 unitTypeTextOrigin = Vec2();
+                    float unitTypeTextRotation = 0.0f;
+                    float unitTypeTextFontSize = 12.0f;
+                    float unitTypeTextSpacing = 1.0f;
+                    Color unitTypeTextColor = BLACK;
+                    DrawTextPro(unitTypeTextFont, unitTypeTextText, unitTypeTextPos, unitTypeTextOrigin, unitTypeTextRotation, unitTypeTextFontSize, unitTypeTextSpacing, unitTypeTextColor);
+
+
+                    Font movementTextFont = GetFontDefault();
+                    const char *movementTextText = TextFormat("MOVEMENT: %.0f / %.0f", selectedUnit->movementLeft, selectedUnit->movement);
+                    v2 movementTextPos = Vec2(unitTypeTextPos.x + 10.0f, selectedUnitPanelRec.y + unitTypeTextFontSize * 2.0f);
+                    v2 movementTextOrigin = Vec2();
+                    float movementTextRotation = 0.0f;
+                    float movementTextFontSize = 12.0f;
+                    float movementTextSpacing = 1.0f;
+                    Color movementTextColor = BLACK;
+                    DrawTextPro(movementTextFont, movementTextText, movementTextPos, movementTextOrigin, movementTextRotation, movementTextFontSize, movementTextSpacing, movementTextColor);
                 }
 
-                v2 cityDrawPos = RealOffsetToScreen(city->coord, camera, map->width);
-                DrawCircleV(cityDrawPos, 30.0f, BLUE);
+                DrawFPS(10, 10);            
 
-                for(int32 k = 0; k < arrlen(city->areaLine); k+=2)
-                {
-                    v2 linestart = Vector2Add(city->areaLine[k], cityDrawPos);
-                    v2 lineEnd = Vector2Add(city->areaLine[k+1], cityDrawPos);
-                    DrawLineEx(linestart, lineEnd, 3.0f, owner->color);
-                }
-            }
-            arrfree(citiesToDraw);
-
-            ////// hex under mouse
-            v2 pos = OffsetToScreen(offsetUnderMouse);
-
-            DrawPolyLinesEx(pos, 6, HEX_SIZE, 0.0f, 2.0f, GOLD);        
-
-            EndMode2D();
-
-            /////////////////////////////// UI DRAWING ///////////////////////////////
-            if(selectedUnit)
-            {
-                float selectedUnitPanelWidth = screenWidth * 0.4f;
-                float selectedUnitPanelHeight = screenHeight * 0.2f;
-                Rectangle selectedUnitPanelRec = Rec(0, screenHeight - selectedUnitPanelHeight, selectedUnitPanelWidth, selectedUnitPanelHeight);
-                v2 selectedUnitPanelOrigin = Vec2();
-                float selectedUnitPanelRotation = 0.0f;
-                Color selectedUnitPanelColor = GRAY;
-                DrawRectanglePro(selectedUnitPanelRec, selectedUnitPanelOrigin, selectedUnitPanelRotation, selectedUnitPanelColor);
-
-
-                Font unitTypeTextFont = GetFontDefault();
-                const char *unitTypeTextText = "WARIOR";
-                v2 unitTypeTextPos = Vec2(selectedUnitPanelRec.x + 5.0f, selectedUnitPanelRec.y + 5.0f);
-                v2 unitTypeTextOrigin = Vec2();
-                float unitTypeTextRotation = 0.0f;
-                float unitTypeTextFontSize = 12.0f;
-                float unitTypeTextSpacing = 1.0f;
-                Color unitTypeTextColor = BLACK;
-
-                DrawTextPro(unitTypeTextFont, unitTypeTextText, unitTypeTextPos, unitTypeTextOrigin, unitTypeTextRotation, unitTypeTextFontSize, unitTypeTextSpacing, unitTypeTextColor);
-
-
-                Font movementTextFont = GetFontDefault();
-                const char *movementTextText = TextFormat("MOVEMENT: %.0f / %.0f", selectedUnit->movementLeft, selectedUnit->movement);
-                v2 movementTextPos = Vec2(unitTypeTextPos.x + 10.0f, selectedUnitPanelRec.y + unitTypeTextFontSize * 2.0f);
-                v2 movementTextOrigin = Vec2();
-                float movementTextRotation = 0.0f;
-                float movementTextFontSize = 12.0f;
-                float movementTextSpacing = 1.0f;
-                Color movementTextColor = BLACK;
-
-                DrawTextPro(movementTextFont, movementTextText, movementTextPos, movementTextOrigin, movementTextRotation, movementTextFontSize, movementTextSpacing, movementTextColor);
-            }
-
-            DrawFPS(10, 10);            
-
-        EndDrawing();
-
+            EndDrawing();
+        } break;
+        default:
+            break;
+        }
         
         //----------------------------------------------------------------------------------
     }

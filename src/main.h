@@ -171,8 +171,6 @@ inline cube_coord Cube(int32 q, int32 r, int32 s)
     return result;
 }
 
-
-
 struct camera_settings
 {
     float speed;
@@ -181,6 +179,7 @@ struct camera_settings
     float maxZoom;
     float zoomTarget;
 };
+
 
 enum game_unit_type { UNIT_TYPE_WARRIOR, UNIT_TYPE_COUNT };
 
