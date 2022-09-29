@@ -293,30 +293,21 @@ void UpdateCamera(Camera2D *camera, camera_settings *camSettings)
     }
 }
 
-void EventPrint(void *target, void *data)
+void E_TileRevieled(void *target, void *data)
 {
-    TraceLog(LOG_INFO, "%d, %s",(int32)target, (const char *)data);
-}
+    game_unit *unit = (game_unit *)target;
+    offset_coord *tilesRevieled = (offset_coord *)data;
 
-void EventPrint2(void *target, void *data)
-{
-    TraceLog(LOG_INFO, "other printing: %d, %s",(int32)target, (const char *)data);
+    TraceLog(LOG_INFO, "Unit at {%d, %d} revieled following tiles:",unit->coord.row, unit->coord.col);
+
+    for(int32 i = 0; i < arrlen(tilesRevieled); ++i)
+    {
+        TraceLog(LOG_INFO, "{%d, %d}", tilesRevieled[i].row, tilesRevieled[i].col);
+    }
 }
 
 int main() 
 {
-    RemoveEvent(E_TILE_REVIELD, &EventPrint);
-    AddEvent(E_TILE_REVIELD, &EventPrint);
-    AddEvent(E_TILE_REVIELD, &EventPrint2);
-
-    TriggerEvent(E_TILE_REVIELD, (void *)10, (void *)"vabalas");
-
-    
-    RemoveEvent(E_TILE_REVIELD, &EventPrint);
-    AddEvent(E_TILE_REVIELD, &EventPrint2);
-
-    TriggerEvent(E_TILE_REVIELD, (void *)10, (void *)"gabalas");
-
     // Initialization
     //--------------------------------------------------------------------------------------
     const int32 screenWidth = 1600;
@@ -409,6 +400,8 @@ int main()
 
     gui_element continueGameButton = GUIButton("CONTINUE GAME");
     gui_element newGameButton = GUIButton("NEW GAME");
+
+    AddEventListener(E_TILE_REVIELD, E_TileRevieled);
 
     //--------------------------------------------------------------------------------------
     // Main game loop
@@ -649,9 +642,10 @@ int main()
                 for(int32 i = 0; i < arrlen(unitsToDraw); i++)
                 {
                     game_unit *unit = unitsToDraw[i];
-                    
+
                     if(unit->ownerId == game->playersTurn->id)
                     {
+                        offset_coord *tilesRevieled = 0;
                         // update visable tiles
                         GetMapTile(unit->coord)->visability = TILE_VIS_FULL;
                         for(int32 v = 0; v < unit->visDistance; v++)
@@ -659,11 +653,20 @@ int main()
                             offset_coord *ns = GetRing(unit->coord, v+1);
                             for(int32 k = 0; k < arrlen(ns); k++)
                             {
-                                GetMapTile(ns[k])->visability = TILE_VIS_FULL;
+                                map_tile *tile = GetMapTile(ns[k]);
+                                if(tile->visability == TILE_VIS_NONE)
+                                    arrpush(tilesRevieled, ns[k]);
+                                tile->visability = TILE_VIS_FULL;
                             }
                             arrfree(ns);
                         }
 
+                        if(arrlen(tilesRevieled) > 0)
+                        {
+                            TriggerEvent(E_TILE_REVIELD, (void *)unit, (void *)tilesRevieled);
+                            arrfree(tilesRevieled);
+                        }
+                        
                     }
 
                     v2 drawPos = RealOffsetToScreen(unit->coord, camera, map->width);

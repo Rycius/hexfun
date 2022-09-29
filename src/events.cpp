@@ -20,7 +20,7 @@ struct _event_store
 _event_store *_events = 0;
 
 
-void AddEvent(game_event_type et, event_func e)
+void AddEventListener(game_event_type et, event_func e)
 {
     _game_event *events = hmget(_events, et);
     
@@ -43,7 +43,7 @@ void AddEvent(game_event_type et, event_func e)
     hmput(_events, et, events);
 }
 
-void RemoveEvent(game_event_type et, event_func e)
+void RemoveEventListener(game_event_type et, event_func e)
 {
     _game_event *events = hmget(_events, et);
 
