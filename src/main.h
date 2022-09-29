@@ -290,3 +290,4 @@ struct game_data
     game_player *playersTurn;
     game_state state;
 };
+

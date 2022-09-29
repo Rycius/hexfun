@@ -4,6 +4,7 @@
 #include "main.h"
 #include "gui.cpp"
 #include "map.cpp"
+#include "events.cpp"
 
 
 v2 PointyHexCorner(v2 center, float size, int32 i)
@@ -129,6 +130,7 @@ void MarkCityVisabilityArea(game_city *city)
                 GetMapTile(neighbors[n])->visability = TILE_VIS_FULL;
             }
         }
+        arrfree(neighbors);
     }
 }
 
@@ -291,19 +293,29 @@ void UpdateCamera(Camera2D *camera, camera_settings *camSettings)
     }
 }
 
+void EventPrint(void *target, void *data)
+{
+    TraceLog(LOG_INFO, "%d, %s",(int32)target, (const char *)data);
+}
+
+void EventPrint2(void *target, void *data)
+{
+    TraceLog(LOG_INFO, "other printing: %d, %s",(int32)target, (const char *)data);
+}
+
 int main() 
 {
-    // Image img = GenImageColor(HEX_TEXTURE_SIZE, HEX_TEXTURE_SIZE, Fade(WHITE, 0.0f));
+    RemoveEvent(E_TILE_REVIELD, &EventPrint);
+    AddEvent(E_TILE_REVIELD, &EventPrint);
+    AddEvent(E_TILE_REVIELD, &EventPrint2);
 
-    // v2 prevPoint = PointyHexCorner(Vec2(HEX_TEXTURE_SIZE/2, HEX_TEXTURE_SIZE/2), HEX_TEXTURE_HEX_SIZE, 0);
-    // for(int32 i = 1; i < 6; i++)
-    // {
-    //     v2 point = PointyHexCorner(Vec2(HEX_TEXTURE_SIZE/2, HEX_TEXTURE_SIZE/2), HEX_TEXTURE_HEX_SIZE, i);
-    //     ImageDrawLineV(&img, prevPoint, point, BLACK); 
-    //     prevPoint = point;
-    // } 
-    // ImageDrawLineV(&img, prevPoint, PointyHexCorner(Vec2(HEX_TEXTURE_SIZE/2, HEX_TEXTURE_SIZE/2), HEX_TEXTURE_HEX_SIZE, 0), BLACK); 
-    // ExportImage(img, "img.png");
+    TriggerEvent(E_TILE_REVIELD, (void *)10, (void *)"vabalas");
+
+    
+    RemoveEvent(E_TILE_REVIELD, &EventPrint);
+    AddEvent(E_TILE_REVIELD, &EventPrint2);
+
+    TriggerEvent(E_TILE_REVIELD, (void *)10, (void *)"gabalas");
 
     // Initialization
     //--------------------------------------------------------------------------------------
