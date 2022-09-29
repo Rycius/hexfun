@@ -19,10 +19,6 @@ struct _event_store
 
 _event_store *_events = 0;
 
-void EventsSetup()
-{
-    hmdefault(_events, 0);
-}
 
 void AddEvent(game_event_type et, event_func e)
 {
