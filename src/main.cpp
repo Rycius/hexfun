@@ -166,7 +166,7 @@ void AddUnit(game_player *player, offset_coord coord)
     game_unit unit = {0};
     unit.ownerId = player->id;
     unit.coord = coord;
-    unit.type = UNIT_TYPE_WARRIOR;
+    unit.type = UNIT_WARRIOR;
     unit.rec = Rec(Vec2(), Vec2(HEX_WIDTH*0.7f, HEX_HEIGHT*0.7f));
     unit.movement = 2;
     unit.movementLeft = 2;

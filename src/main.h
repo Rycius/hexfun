@@ -181,7 +181,7 @@ struct camera_settings
 };
 
 
-enum game_unit_type { UNIT_TYPE_WARRIOR, UNIT_TYPE_COUNT };
+enum game_unit_type { UNIT_WARRIOR, UNIT_TYPE_COUNT };
 
 struct game_unit
 {
